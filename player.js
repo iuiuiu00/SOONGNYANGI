@@ -1,153 +1,198 @@
-function updatePlayer() {
-  player.prevX = player.x;
-  player.prevY = player.y;
+let cat = { x:140, y:floorY-32, vx:0, vy:0, onGround:false, dir:1, stepT:0 };
 
-  // 입력
-  let left  = keyIsDown(LEFT_ARROW)  || keyIsDown(65);
-  let right = keyIsDown(RIGHT_ARROW) || keyIsDown(68);
-  if (left)  { player.vx -= player.speed; player.facingRight = false; }
-  if (right) { player.vx += player.speed; player.facingRight = true;  }
-
-  player.vx  = constrain(player.vx, -player.maxSpeed, player.maxSpeed);
-  player.vy += gravity;
-  player.vx *= player.friction;
-
-  // 걷기 프레임
-  if (abs(player.vx) > 0.5) player.walkFrame++;
-
-  // 코요테타임 카운트
-  if (player.grounded) {
-    coyoteTimer = COYOTE_MAX;
-    player.doubleJumpAvail = true;
+function updateCorridor() {
+  if (keys[65]) {
+    cat.vx = -2.8;
+    cat.dir = -1;
+  } else if(keys[68]) {
+    cat.vx = 2.8;
+    cat.dir = 1;
   } else {
-    coyoteTimer = max(coyoteTimer - 1, 0);
+    cat.vx *= 0.5;
   }
 
-  // 점프 버퍼 카운트
-  jumpBuffer = max(jumpBuffer - 1, 0);
-
-  // 버퍼 점프 실행
-  if (jumpBuffer > 0 && (player.grounded || coyoteTimer > 0)) {
-    executeJump();
-    jumpBuffer = 0;
+  if ((keys[87] || keys[32]) && cat.onGround) {
+    cat.vy = -9.5;
+    cat.onGround = false;
   }
 
-  // 무적 프레임
-  if (player.invincible > 0) player.invincible--;
+  cat.vy = min(cat.vy + 0.5, 14);
+  cat.x += cat.vx;
+  cat.y += cat.vy;
+  cat.x = constrain(cat.x, 10, CW-10);
 
-  // 이동 (X 먼저, Y 다음으로 분리 충돌)
-  player.x += player.vx;
-  checkBrickCollisionX();
-  checkMovingPlatformX();
+  let onPit = cat.x + 8 > pit.x && cat.x - 8 < pit.x + pit.w;
 
-  player.grounded = false;
-  player.y += player.vy;
-  checkBrickCollisionY();
-  checkMovingPlatformY();
-}
+  if (cat.y + 32 >= floorY && !onPit) {
+    cat.y = floorY - 32;
+    cat.vy = 0;
+    cat.onGround = true;
+  } else if(onPit && cat.y + 32 > floorY+20) {
+    sliding = true;
+    slideSpeed = 6;
+    slideAlpha = 0;
+    cat.vy = 0;
+  } else if(!(cat.y + 32 >= floorY)) {
+    cat.onGround = false;
+  }
 
-function executeJump() {
-  player.vy = player.jumpPower;
-  player.grounded = false;
-  coyoteTimer = 0;
-  spawnParticles(player.x, player.y + player.r, [200, 200, 200], 5);
-}
+  let cy  =getCeilY(cat.x);
+  
+  if(cat.y < cy) {
+    cat.y = cy;
+    cat.vy = 0;
+  }
 
-// ─── 충돌 (발판) ───────────────────────────────────────────
-function checkBrickCollisionX() {
-  for (let b of bricks) {
-    if (overlapAABB(player, b)) {
-      if (player.vx > 0) player.x = b.x - player.r;
-      else               player.x = b.x + b.w + player.r;
-      player.vx = 0;
+  if(abs(cat.vx) > 0.3 && cat.onGround) {
+    cat.stepT += 0.28; 
+  }
+
+  nearDoor = false;
+  nearDoorIdx = -1;
+
+  rooms.forEach((rm,i) => {
+    if(abs(cat.x - rm.x) < 38 && cat.onGround) {
+      nearDoor = true;
+      nearDoorIdx = i;
     }
+  });
+}
+
+function updateSlide() {
+  slideSpeed += 0.5;
+  cat.x += slideSpeed;
+  cat.y += 1.5;
+  slideAlpha = min(slideAlpha + 5, 255);
+  
+  if (slideAlpha >= 255) {
+    scene = 'pit_exclaim';
+    seqTimer = 0;
+    sliding = false;
   }
 }
 
-function checkBrickCollisionY() {
-  for (let b of bricks) {
-    if (overlapAABB(player, b)) {
-      if (player.vy > 0) {
-        player.y = b.y - player.r;
-        player.vy = 0;
-        player.grounded = true;
-        if (abs(player.vx) > 2) spawnParticles(player.x, player.y + player.r, [180,180,180], 3);
-      } else {
-        player.y = b.y + b.h + player.r;
-        player.vy = 0;
-      }
-    }
-  }
-}
-
-function checkMovingPlatformX() {
-  for (let mp of movPlatforms) {
-    if (overlapAABB(player, mp)) {
-      if (player.vx > 0) player.x = mp.x - player.r;
-      else               player.x = mp.x + mp.w + player.r;
-      player.vx = 0;
-    }
-  }
-}
-
-function checkMovingPlatformY() {
-  for (let mp of movPlatforms) {
-    if (overlapAABB(player, mp)) {
-      if (player.vy >= 0) {
-        player.y = mp.y - player.r;
-        player.vy = 0;
-        player.grounded = true;
-        // 발판 위에 올라타면 같이 이동
-        player.x += mp.spd * mp.dir;
-      } else {
-        player.y = mp.y + mp.h + player.r;
-        player.vy = 0;
-      }
-    }
-  }
-}
-
-// 원형 플레이어 vs 사각 AABB
-function overlapAABB(pl, rect_) {
-  let cx = constrain(pl.x, rect_.x, rect_.x + rect_.w);
-  let cy = constrain(pl.y, rect_.y, rect_.y + rect_.h);
-  return dist(pl.x, pl.y, cx, cy) < pl.r;
-}
-
-function checkGround() {
-  if (player.y + player.r > groundY) {
-    player.y       = groundY - player.r;
-    player.vy      = 0;
-    player.grounded = true;
-  }
-}
-
-function checkWalls() {
-  if (player.x - player.r < 0)           { player.x = player.r;              player.vx = 0; }
-  if (player.x + player.r > worldWidth)  { player.x = worldWidth - player.r; player.vx = 0; }
-  // 화면 아래로 떨어지면 즉사
-  if (player.y > height + 100) playerDie();
-}
-
-function playerDie() {
-  if (!player.alive) return;
-  player.alive     = false;
-  player.deathAnim = 0;
-  player.vy        = -12;
-  player.vx        = (player.facingRight ? -4 : 4);
-  spawnParticles(player.x, player.y, [255, 100, 100], 18);
-}
-
-function respawnOrGameOver() {
-  lives--;
-  if (lives <= 0) {
-    lives        = MAX_LIVES;
-    gameOverFade = 0;
-    startFadeOut("gameover");
+function updateCls() {
+  if (keys[65]) {
+    cat.vx = -2.6;
+    cat.dir = -1;
+  } else if(keys[68]) {
+    cat.vx = 2.6;
+    cat.dir = 1;
   } else {
-    // 현재 스테이지 재시작 (카메라 유지 안 함 - 처음부터)
-    if (currentStage === 1) loadStage1();
-    else                    loadStage2();
-    gameState = "game";
+    cat.vx *= 0.5;
+  }
+
+  if ((keys[87] || keys[32]) && cat.onGround) {
+    cat.vy = -9;
+    cat.onGround = false;
+  }
+
+  cat.vy = min(cat.vy + 0.5, 12);
+  cat.x += cat.vx;
+  cat.y += cat.vy;
+  cat.x = constrain(cat.x, 10, W-10);
+
+  if (cat.y + 32 >= clsFloorY) {
+    cat.y = clsFloorY-32;
+    cat.vy = 0;
+    cat.onGround = true;
+  } else {
+    cat.onGround = false;
+  }
+
+  if (cat.y < clsCeilY) {
+    cat.y = clsCeilY;
+    cat.vy = 0;
+  }
+
+  if (abs(cat.vx) > 0.3 && cat.onGround) {
+    cat.stepT += 0.28;
+  }
+
+  if (!clsKeyGot && cat.x < 80 && cat.y > clsFloorY - 80) {
+    clsKeyGot = true;
+    clsKey1Got = true;
+  }
+
+  if (clsKeyGot && cat.x > W-25 && !clsCleared) {
+    clsCleared = true;
+  }
+
+  for (let i = 0; i < 4; i++) {
+    spawnTimers[i]--;
+
+    if (spawnTimers[i] <= 0) {
+      let sz = objTypes[i] === 'glass' ? 38 : objTypes[i] === 'tile' ? 42 : 36;
+      
+      obstacles.push({
+        x: cols[i] + random(-10, 10),
+        y: clsCeilY + 10,
+        type: objTypes[i],
+        vy: random(2.2, 3.2),
+        rot: random(-0.15, 0.15),
+        sz
+      });
+
+      spawnTimers[i] = floor(random(40, 70));
+    }
+  }
+
+  for (let i = obstacles.length - 1; i >= 0; i--) {
+    let ob = obstacles[i];
+
+    ob.y += ob.vy;
+
+    if (ob.y > clsFloorY + 40) {
+      obstacles.splice(i, 1);
+      continue;
+    }
+
+    if (!clsDead && cat.x + 10 > ob.x - ob.sz / 2 && cat.x - 10 < ob.x + ob.sz / 2 && cat.y + 4 > ob.y - ob.sz / 2 && cat.y + 30 < ob.y + ob.sz) {
+      clsDead = true;
+    }
+  }
+}
+
+function updateCs() {
+  let spd = csHeld ? 1.3 : 2.6;
+
+  if (keys[65]) {
+    cat.vx = -spd;
+    cat.dir = -1;
+  } else if(keys[68]) {
+    cat.vx = spd;
+    cat.dir = 1;
+  } else {
+    cat.vx *= 0.5;
+  }
+
+  if((keys[87] || keys[32]) && cat.onGround) {
+    cat.vy = -8.5;
+    cat.onGround = false;
+  }
+
+  cat.vy = min(cat.vy + 0.45, 12);
+  cat.x += cat.vx;
+  cat.y += cat.vy;
+  cat.x = constrain(cat.x, 10, W-10);
+
+  cat.onGround = false;
+
+  csPl.forEach(pl => {
+    if (cat.x + 6> pl.x1 && cat.x - 6 < pl.x2 && cat.y + 28 >= pl.y && cat.y + 28 <= pl.y + 16 && cat.vy >= 0) {
+      cat.y = pl.y - 28;
+      cat.vy = 0;
+      cat.onGround = true;
+    }
+  });
+
+  if (abs(cat.vx) > 0.3 && cat.onGround) {
+    cat.stepT += 0.28;
+  }
+
+  if (csHeld) {
+    let item = csItems.find(i => i.id === csHeld);
+    item.x = cat.x + cat.dir*10;
+    item.y = cat.y - 2;
   }
 }

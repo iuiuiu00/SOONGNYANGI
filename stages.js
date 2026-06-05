@@ -1,141 +1,149 @@
-function loadStage1() {
-  bgBrightness = 20;
-  bricks = []; obstacles = []; fallingObstacles = [];
-  movPlatforms = []; coins = []; particles = [];
-  score = 0;
+const W = 680, H = 500, TILE = 16;
+const CW = 2800, floorY = 380, ceilBase = 100;
+const wallW = TILE, roomW = 280, startX = 300;
 
-  player.x = 100; player.y = 200;
-  player.vx = 0; player.vy = 0;
-  player.alive = true; player.invincible = 0;
-  lives = MAX_LIVES;
-  cameraX = 0;
+let camX = 0;
 
-  // 발판 배치 (type: stone / wood / ice / metal)
-  let pData = [
-    // x,    y,    w,   h,   type
-    [250,  380,  180,  20,  "wood"],
-    [480,  330,  140,  20,  "stone"],
-    [660,  280,  120,  20,  "wood"],
-    [820,  330,  100,  20,  "stone"],
-    [970,  270,  160,  20,  "wood"],
-    [1180, 310,  120,  20,  "stone"],
-    [1350, 250,  160,  20,  "wood"],
-    [1560, 300,  140,  20,  "stone"],
-    [1760, 240,  130,  20,  "wood"],
-    [1950, 290,  150,  20,  "stone"],
-    [2200, 230,  180,  20,  "wood"],
-    [2450, 350,  140,  20,  "stone"],
-    [2650, 290,  120,  20,  "wood"],
-    [2850, 220,  150,  20,  "stone"],
-    [3100, 280,  160,  20,  "wood"],
-    [3350, 200,  130,  20,  "stone"],
-    [3560, 260,  140,  20,  "wood"],
-    [3780, 310,  180,  20,  "stone"],
-    [3980, 240,  150,  20,  "wood"],
-    [4250, 300,  200,  20,  "stone"],
-    [4500, 250,  160,  20,  "wood"],
-  ];
-  for (let d of pData) bricks.push({ x:d[0], y:d[1], w:d[2], h:d[3], type:d[4] });
+let nearDoor = false;
+let nearDoorIdx = -1;
 
-  // 움직이는 발판
-  movPlatforms.push({x:550, y:360, w:120, h:20, spd:1.4, dir:1, minX:430, maxX:680});
-  movPlatforms.push({x:1500,y:300, w:110, h:20, spd:1.6, dir:-1,minX:1400,maxX:1620});
-  movPlatforms.push({x:2900,y:260, w:110, h:20, spd:1.8, dir:1, minX:2780,maxX:3050});
-  movPlatforms.push({x:4100,y:310, w:110, h:20, spd:2.0, dir:-1,minX:3980,maxX:4260});
+const walls = [
+    {x: startX},
+    {x: startX + wallW + roomW},
+    {x: startX + wallW*2 + roomW*2},
+    {x: startX + wallW*3 + roomW*3}
+];
+const rooms = [
+  {x: startX + wallW + roomW*0.65, w:44, h:92, type:'classroom'},
+  {x: startX + wallW*2 + roomW + roomW*0.65, w:44, h:92, type:'churu'},
+  {x: startX + wallW*3 + roomW*2 + roomW*0.65, w:44, h:92, type:'prof'},
+];
 
-  // 장애물(가시)
-  obstacles.push({x:760,  y: groundY - 30, w:80,  h:30});
-  obstacles.push({x:1200, y: groundY - 30, w:60,  h:30});
-  obstacles.push({x:2000, y: groundY - 30, w:100, h:30});
-  obstacles.push({x:3200, y: groundY - 30, w:80,  h:30});
-  obstacles.push({x:4000, y: groundY - 30, w:60,  h:30});
+let enteredX = rooms[0].x;
 
-  // 낙하 장애물
-  [1800, 2600, 3400, 4300].forEach(fx => {
-    fallingObstacles.push({x:fx - 30, y:0, originalY:0, w:60, h:60, vy:0, triggered:false, landed:false, slide:false});
-  });
-  // 슬라이딩 낙하물
-  fallingObstacles.push({x:2200, y:0, originalY:0, w:60, h:60, vy:0, triggered:false, landed:false, slide:true, slideDir:1});
+const wins_c = [
+  {x: startX + wallW + 14, y: ceilBase + 48, w:100, h:36},
+  {x: startX + wallW*2 + roomW + 14, y: ceilBase + 48, w:100, h:36},
+  {x: startX + wallW*3 + roomW*2 + 14, y: ceilBase + 48, w:100, h:36},
+];
 
-  // 코인 배치
-  let coinPositions = [
-    [300,350],[520,295],[690,245],[990,235],[1210,275],
-    [1390,215],[1600,265],[1790,205],[2000,255],[2220,195],
-    [2470,315],[2680,255],[2880,185],[3130,245],[3370,165],
-    [3580,225],[3800,275],[4000,205],[4270,265],[4520,215],
-  ];
-  for (let [cx,cy] of coinPositions) coins.push({x:cx, y:cy, collected:false, anim:random(TWO_PI)});
+const pit = {x: startX + wallW*3 + roomW*3 + 120, w:80};
+
+const clsFloorY = 390, clsCeilY = 80;
+
+const cols = [150, 270, 400, 530], objTypes = ['chair', 'chair', 'tile', 'glass'];
+
+// coopsket
+const csGY = 420, csBTY = 200, csS1Y = 270, csS2Y = 310, csCY = 345;
+const csBX = 20, csBW = 80, csS1X = 130, csS1W = 160, csS2X = 360, csS2W = 180, csCX = 570, csCW = 100, csEX = csCX + csCW;
+const csSlots=[
+    {id:'A', x:csCX+22, y:csCY-28, filled:false},
+    {id:'D', x:csCX+68, y:csCY-28, filled:false}
+];
+const csItems=[
+  {id:'A', col:[80,140,210], x:csS1X+30, y:csS1Y-16, onCash:false},
+  {id:'B', col:[180,30,30], x:csS1X+90, y:csS1Y-16, onCash:false},
+  {id:'C', col:[100,170,80], x:csS2X+30, y:csS2Y-16, onCash:false},
+  {id:'D', col:[220,130,20], x:csS2X+90, y:csS2Y-16, onCash:false},
+  {id:'E', col:[210,70,30], x:csS2X+150, y:csS2Y-16, onCash:false},
+];
+
+const profileLen = Math.ceil(CW / TILE) + 4;
+
+const ceilProfile = [];
+
+for (let i = 0; i < profileLen; i++) {
+    let v = Math.sin(i*0.17)*10 + Math.sin(i*0.06)*8 + Math.sin(i*0.43)*4;
+    
+    ceilProfile.push(Math.max(0, Math.min(Math.round((v + 12) / TILE) * TILE, 28)));
 }
 
-function loadStage2() {
-  bgBrightness = 20;
-  bricks = []; obstacles = []; fallingObstacles = [];
-  movPlatforms = []; coins = []; particles = [];
-  score = 0;
+const csPl = [
+    {x1:csBX, x2:csBX+csBW, y:csBTY},
+    {x1:csS1X, x2:csS1X+csS1W, y:csS1Y},
+    {x1:csS2X, x2:csS2X+csS2W, y:csS2Y},
+    {x1:csCX, x2:csCX+csCW, y:csCY},
+    {x1:0, x2:W, y:csGY},
+    ...mkDiag(csS1X+csS1W, csS1Y, csS2X, csS2Y, 20),
+    ...mkDiag(csS2X+csS2W, csS2Y, csCX, csCY, 16)
+];
 
-  player.x = 100; player.y = 200;
-  player.vx = 0; player.vy = 0;
-  player.alive = true; player.invincible = 0;
-  lives = MAX_LIVES;
-  cameraX = 0;
+let obstacles = [], spawnTimers = [0,18,36,54], clsKeyGot = false;
+let clsDead = false, clsDeadA = 0, clsCleared = false, clsClearA = 0;
+let csHeld = null, csCleared = false, csClearA = 0, csSP = false;
 
-  // 발판 (더 좁고 많은 간격)
-  let pData = [
-    [200,  370,  140,  20,  "stone"],
-    [390,  310,  110,  20,  "wood"],
-    [540,  260,  100,  20,  "stone"],
-    [680,  310,  100,  20,  "wood"],
-    [820,  240,  120,  20,  "stone"],
-    [1000, 290,  100,  20,  "wood"],
-    [1150, 220,  110,  20,  "stone"],
-    [1320, 270,  100,  20,  "wood"],
-    [1490, 200,  130,  20,  "stone"],
-    [1700, 260,  110,  20,  "wood"],
-    [1900, 310,  100,  20,  "stone"],
-    [2080, 230,  120,  20,  "wood"],
-    [2300, 180,  140,  20,  "stone"],
-    [2520, 260,  110,  20,  "wood"],
-    [2720, 200,  120,  20,  "stone"],
-    [2940, 280,  100,  20,  "wood"],
-    [3120, 210,  130,  20,  "stone"],
-    [3360, 170,  140,  20,  "wood"],
-    [3600, 230,  120,  20,  "stone"],
-    [3830, 290,  110,  20,  "wood"],
-    [4060, 210,  130,  20,  "stone"],
-    [4300, 260,  150,  20,  "wood"],
-    [4550, 200,  160,  20,  "stone"],
-  ];
-  for (let d of pData) bricks.push({x:d[0],y:d[1],w:d[2],h:d[3],type:d[4]});
+function initCls() {
+    cat.x = W-40;
+    cat.y = clsFloorY - 32;
+    cat.vx = 0;
+    cat.vy = 0;
+    cat.dir = -1;
+    
+    obstacles = [];
+    spawnTimers = [0,18,36,54];
+    
+    clsDead = false;
+    clsDeadA = 0;
+    
+    clsCleared = false;
+    clsClearA = 0;
+    
+    clsKeyGot = false;
+}
 
-  // 움직이는 발판 (더 빠름)
-  movPlatforms.push({x:300,  y:380, w:100, h:20, spd:2.0, dir:1,  minX:200,  maxX:430});
-  movPlatforms.push({x:770,  y:310, w:100, h:20, spd:2.2, dir:-1, minX:660,  maxX:880});
-  movPlatforms.push({x:1400, y:250, w:100, h:20, spd:2.4, dir:1,  minX:1280, maxX:1550});
-  movPlatforms.push({x:2150, y:200, w:100, h:20, spd:2.6, dir:-1, minX:2030, maxX:2280});
-  movPlatforms.push({x:3000, y:230, w:100, h:20, spd:2.8, dir:1,  minX:2880, maxX:3150});
-  movPlatforms.push({x:3700, y:260, w:100, h:20, spd:2.5, dir:-1, minX:3580, maxX:3870});
-  movPlatforms.push({x:4200, y:290, w:100, h:20, spd:3.0, dir:1,  minX:4060, maxX:4380});
+function resetCls() {
+    cat.x = W-40;
+    cat.y = clsFloorY-32;
+    cat.vx = 0;
+    cat.vy = 0;
+    cat.dir = -1;
+    obstacles = [];
+    spawnTimers = [0,18,36,54];
+    clsDead = false;
+    clsDeadA = 0;
+    clsKeyGot = false;
+}
 
-  // 장애물(가시) - 더 많음
-  [700,1060,1560,2000,2540,3000,3440,4000,4420].forEach(ox => {
-    obstacles.push({x:ox, y:groundY - 30, w:70, h:30});
-  });
+function initCorReturn() {
+    cat.x = enteredX;
+    cat.y = floorY-32;
+    cat.vx = 0;
+    cat.vy = 0;
+    cat.dir = -1;
+    cat.onGround = true;
+    camX = constrain(cat.x - W/2, 0, CW - W);
+    sliding = false;
+}
 
-  // 낙하 장애물 - 더 많고 빽빽함
-  [1600,2100,2600,3000,3500,3900].forEach(fx => {
-    fallingObstacles.push({x:fx - 30, y:0, originalY:0, w:60, h:60, vy:0, triggered:false, landed:false, slide:false});
-  });
-  // 슬라이딩 낙하물 2개
-  fallingObstacles.push({x:2300, y:0, originalY:0, w:60, h:60, vy:0, triggered:false, landed:false, slide:true, slideDir:1});
-  fallingObstacles.push({x:4100, y:0, originalY:0, w:60, h:60, vy:0, triggered:false, landed:false, slide:true, slideDir:-1});
+function initCs() {
+    cat.x = csBX + csBW/2;
+    cat.y = csBTY - 28;
+    cat.vx = 0;
+    cat.vy = 0;
+    cat.dir = 1;
+    cat.onGround = false;
+    csHeld = null;
+    csCleared = false;
+    csClearA = 0;
+    csSP = false;
+    csSlots.forEach(s => s.filled = false);
+    csItems[0].x = csS1X + 30;
+    csItems[0].y = csS1Y - 16;
+    csItems[0].onCash = false;
 
-  // 코인 (더 많음, 까다로운 위치)
-  let cp = [
-    [240,340],[410,275],[560,225],[840,205],[1020,255],
-    [1170,185],[1340,235],[1510,165],[1720,225],[1920,275],
-    [2100,195],[2320,145],[2540,225],[2740,165],[2960,245],
-    [3140,175],[3380,135],[3620,195],[3850,255],[4080,175],
-    [4320,225],[4570,165],
-  ];
-  for (let [cx,cy] of cp) coins.push({x:cx, y:cy, collected:false, anim:random(TWO_PI)});
+    csItems[1].x = csS1X + 90;
+    csItems[1].y = csS1Y - 16;
+    csItems[1].onCash = false;
+
+    csItems[2].x = csS2X + 30;
+    csItems[2].y = csS2Y - 16;
+    csItems[2].onCash = false;
+
+    csItems[3].x = csS2X + 90;
+    csItems[3].y = csS2Y - 16;
+    csItems[3].onCash = false;
+
+    csItems[4].x = csS2X + 150;
+    csItems[4].y = csS2Y - 16;
+    csItems[4].onCash = false;
 }

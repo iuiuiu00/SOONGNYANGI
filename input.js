@@ -1,86 +1,168 @@
+let keys = {};
+
 function keyPressed() {
-  // 인트로 → 로비
-  if (gameState === "intro" && keyCode === ENTER) {
-    startFadeOut("lobby");
-    return;
-  }
+  keys[keyCode] = true;
 
-  // 로비에서 키 선택 (선택적)
-  if (gameState === "lobby") {
-    if (key === '1') { currentStage=1; loadStage1(); startFadeOut("game"); }
-    if (key === '2') { currentStage=2; loadStage2(); startFadeOut("game"); }
-  }
+  if (scene==='corridor' && keyCode===SHIFT && nearDoor && !menuOpen) {
+    let rm = rooms[nearDoorIdx];
+    
+    if (rm.type === 'churu' && !clsKey1Got) return;
 
-  // 게임 - 점프
-  if (gameState === "game" && (key === ' ' || keyCode === UP_ARROW || keyCode === 87)) {
-    if (player.grounded || coyoteTimer > 0) {
-      executeJump();
-    } else if (player.doubleJumpAvail) {
-      // 더블 점프
-      player.vy = player.jumpPower * 0.88;
-      player.doubleJumpAvail = false;
-      spawnParticles(player.x, player.y, [100, 200, 255], 8);
+    enteredX = rm.x;
+
+    if (rm.type === 'classroom') {
+        initCls();
+        scene = 'intro_cls';
+        seqTimer = 0;
     } else {
-      // 점프 버퍼 예약
-      jumpBuffer = JUMP_BUF_MAX;
+        fadingTo = rm.type;
+        scene = 'fadeout';
+        fadeAlpha = 0;
+    } 
+  }
+
+  if (scene === 'churu' && (keyCode === ENTER || keyCode === 32)) {
+    if (!cAdv) {
+        cCi = cLines[cLi].text.length;
+        cAdv = true;
+        return;
+    }
+
+    cLi++;
+    cCi = 0;
+    cAdv = false;
+    cTmr = 0;
+
+    if (cLi === 1) excA = 0;
+    if (cLi === 2) churuVis = true;
+
+    if (cLi >= cLines.length) {
+        fadingTo = 'corridor';
+        scene = 'fadeout';
+        fadeAlpha = 0;
     }
   }
 
-  // 클리어 → 다음
-  if (gameState === "clear" && keyCode === ENTER) {
-    if (currentStage === 1) {
-      currentStage = 2;
-      loadStage2();
-      startFadeOut("game");
-    } else {
-      startFadeOut("ending");
+  if (scene === 'prof' && (keyCode === ENTER || keyCode === 32)) {
+    if (!pAdv) {
+        pCi = pLines[pLi].text.length;
+        pAdv = true;
+        return;
+    }
+
+    pLi++;
+    pCi = 0;
+    pAdv = false;
+    pTmr = 0;
+
+    if (pLi >= pLines.length) {
+        fadingTo = 'corridor';
+        scene = 'fadeout';
+        fadeAlpha = 0;
     }
   }
 
-  // 게임오버 / 엔딩 → 인트로
-  if ((gameState === "gameover" || gameState === "ending") && keyCode === ENTER) {
-    lives = MAX_LIVES; score = 0;
-    startFadeOut("intro");
+  if(scene==='coopsket' && keyCode===SHIFT && !csSP&&!menuOpen) {
+    csSP = true;
+    handleCsShift();
   }
+
+  if(keyCode===82 && scene==='classroom' && clsDead) {
+    resetCls();
+  }
+
+  if(keyCode===27) {
+    menuOpen = false;
+  }
+
+  return false;
+}
+
+function keyReleased() {
+    keys[keyCode] = false;
+    
+    if (keyCode === SHIFT) {
+        csSP = false;
+    }
 }
 
 function mousePressed() {
-  // 인트로 클릭
-  if (gameState === "intro") {
-    startFadeOut("lobby");
+  if (mouseX>MBX && mouseX<MBX+MBW && mouseY>MBY && mouseY<MBY+MBH && ['corridor','classroom','coopsket'].includes(scene)) {
+    menuOpen = !menuOpen;
     return;
   }
 
-  // 로비 카드 클릭
-  if (gameState === "lobby") {
-    // 스테이지 1 카드
-    if (mouseX > width/2 - 220 && mouseX < width/2 + 160 &&
-        mouseY > 180 && mouseY < 420) {
-      currentStage = 1; loadStage1(); startFadeOut("game");
-    }
-    // 스테이지 2 카드
-    if (mouseX > width/2 + 30 && mouseX < width/2 + 410 &&
-        mouseY > 180 && mouseY < 420) {
-      currentStage = 2; loadStage2(); startFadeOut("game");
-    }
-  }
-
-  // 클리어 버튼
-  if (gameState === "clear" && clearFade > 80) {
-    let bx = width/2 - 160, by = height/2 + 20, bw = 320, bh = 80;
-    if (mouseX > bx && mouseX < bx+bw && mouseY > by && mouseY < by+bh) {
-      if (currentStage === 1) {
-        currentStage = 2; loadStage2(); startFadeOut("game");
-      } else {
-        startFadeOut("ending");
-      }
+  if (menuOpen) {
+    let mx = W / 2 - 80, my = H / 2 - 55;
+     
+    if (mouseX>mx && mouseX<mx+160 && mouseY>my+16 && mouseY<my+52) {
+        menuOpen = false;
+    } else if (mouseX>mx && mouseX<mx+160 && mouseY>my+62 && mouseY<my+98) {
+        menuOpen = false;
+        doRestart();
     }
   }
 }
 
-// ─── 전체화면 & 리사이즈 ──────────────────────────────────
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  groundY = height - 80;
-  generateBgParticles();
+function handleCsShift() {
+  if (csHeld !== null) {
+    let item = csItems.find(i => i.id === csHeld);
+
+    if (cat.x>csCX-25 && cat.x<csCX+csCW+25) {
+      let slot = csSlots.find(s => s.id === item.id && !s.filled) || csSlots.find(s => !s.filled);
+      
+      if (slot) {
+        item.x = slot.x;
+        item.y = slot.y;
+        item.onCash = true;
+        slot.filled = true;
+      } else { 
+        item.x = cat.x + (cat.dir > 0 ? 18 : -18);
+        item.y = cat.y + 10;
+        item.onCash = false;
+
+      }
+    } else {
+        item.x = cat.x + (cat.dir > 0 ? 18 : -18);
+        item.y = cat.y + 10;
+        item.onCash = false;
+        
+        csSlots.forEach(s => {
+            if (s.id === item.id) {
+                s.filled = false;
+            }
+        });
+    }
+
+    csHeld = null;
+
+    if (csItems.find(i => i.id === 'A' && i.onCash) && csItems.find(i => i.id === 'D' && i.onCash)) {
+        csCleared = true;
+    }
+  } else {
+    let closest = null, minD = 55;
+
+    csItems.forEach(item => {
+        let d = dist(cat.x, cat.y + 14, item.x, item.y);
+
+        if (d < minD) {
+            minD = d;
+            closest = item;
+        }
+    });
+
+    if (closest) {
+        if (closest.onCash) {
+            let slot = csSlots.find(s => s.id === closest.id);
+
+            if (slot) {
+                slot.filled = false;
+            }
+             
+            closest.onCash = false;
+        }
+
+        csHeld = closest.id;
+    }
+  }
 }

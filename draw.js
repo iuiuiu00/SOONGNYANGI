@@ -1,359 +1,737 @@
-function drawStarField() {
+function drawClassroom(){
   noStroke();
-  for (let p of bgParticles) {
-    p.y += p.speed * 0.3;
-    if (p.y > height) p.y = 0;
-    fill(255, p.opacity);
-    ellipse(p.x, p.y, p.size);
-  }
+  fill(10,8,6);
+  rect(0,0,W,H);
+  [18,172,328,484].forEach(wx => {
+    const winW = 136, winH = 200, winY = clsCeilY + 6, mx2 = wx + winW / 2, my2 = winY + winH / 2;
+    
+    fill(30,22,14);
+    rect(wx-6,winY-6,winW+12,winH+12);
+    
+    fill(9,13,20);
+    rect(wx,winY,winW/2-2,winH/2-2);
+    rect(mx2+2,winY,winW/2-2,winH/2-2);
+    rect(wx,my2+2,winW/2-2,winH/2-2);
+    rect(mx2+2,my2+2,winW/2-2,winH/2-2);
+    
+    fill(28,20,12);
+    rect(wx,my2-2,winW,4);
+    rect(mx2-2,winY,4,winH);
+    rect(wx,winY,winW,4);
+    rect(wx,winY+winH-4,winW,4);
+    rect(wx,winY,4,winH);
+    rect(wx+winW-4,winY,4,winH);
+    
+    fill(18,28,46,160);
+    triangle(wx+5,winY+5,wx+28,winY+5,wx+14,winY+26);
+    
+    fill(42,30,18);
+    rect(wx-6,winY-6,winW+12,2);
+    rect(wx-6,winY-6,2,winH+12);
+});
+
+fill(8,7,6);
+rect(0,0,W,clsCeilY);
+  
+fill(44,44,46);
+rect(0,clsCeilY,W,3);
+
+fill(14,10,7);
+rect(0,clsFloorY+6,W,H);
+
+fill(44,44,46);
+rect(0,clsFloorY,W,3);
+
+const bx = 6, by = clsFloorY-80, bw = 68, bh = 70;
+  
+fill(38,28,16);
+rect(bx,by,10,bh);
+rect(bx,by,bw,10);
+rect(bx,by+bh-10,bw,10);
+
+fill(205,205,200);
+rect(bx+10,by+10,bw-10,bh-20);
+  
+if(!clsKeyGot) {
+    let kx = bx+36, ky = by + bh / 2;
+    
+    fill(185,160,44);
+    rect(kx-8,ky,14,4);
+    rect(kx+4,ky,4,3);
+    rect(kx+4,ky+4,3,3);
+    
+    fill(195,170,50);
+    rect(kx-10,ky-8,10,10);
+    
+    fill(205,205,200);
+    rect(kx-9,ky-7,8,8);
+    
+    fill(195,170,50);
+    rect(kx-8,ky-6,6,6);
+    
+    fill(205,205,200);
+    rect(kx-7,ky-5,4,4);
 }
 
-function drawStageBG() {
-  if (currentStage === 1) {
-    background(180, 210, 255);
-  } else {
-    background(240, 225, 200);
-  }
-}
+let dx3 = W-140, dy3 = clsFloorY-42;
 
-function drawParallaxBG() {
-  if (currentStage === 1) drawLibraryBG();
-  else drawJomansikBG();
-}
+fill(44,32,20);
+rect(dx3,dy3,112,12,1);
 
-function drawLibraryBG() {
-  // 먼 구름 (0.2x 패럴랙스)
-  noStroke();
-  fill(255, 255, 255, 160);
-  let cx = cameraX;
-  for (let i = 0; i < 8; i++) {
-    let bx = ((i * 700 - cameraX * 0.2) % (worldWidth + 400)) - 100;
-    let by = 60 + sin(i * 2.3) * 40;
-    ellipse(bx, by, 160, 60);
-    ellipse(bx + 60, by - 20, 120, 50);
-    ellipse(bx + 120, by, 100, 45);
+fill(40,29,18);
+rect(dx3+10,dy3+12,7,30);
+rect(dx3+95,dy3+12,7,30);
+rect(dx3+10,dy3+30,92,5);
+  
+obstacles.forEach(ob => {
+    push();
+    
+    translate(ob.x,ob.y);
+    rotate(ob.rot);
+    noStroke();
+    
+    let s = ob.sz;
+    
+    if(ob.type==='chair') {
+        fill(50,36,22);
+        rect(-s*.5,-s*.25,s,s*.22);
+        rect(-s*.42,0,s*.84,s*.2);
+        
+        fill(40,28,16);
+        rect(-s*.38,s*.2,s*.18,s*.4);
+        rect(s*.2,s*.2,s*.18,s*.4);
+    } else if(ob.type==='tile') {
+        fill(65,65,68);
+        rect(-s*.5,-s*.2,s,s*.4,2);
+
+        stroke(38,38,42);
+        strokeWeight(1);
+        line(0,-s*.2,0,s*.2);
+
+        noStroke();
+    } else {
+        fill(26,40,62,230);
+        triangle(-s*.5,s*.4,s*.5,s*.4,s*.1,-s*.4);
+
+        stroke(55,80,115,200);
+        strokeWeight(1.5);
+        line(-s*.1,-s*.1,s*.2,s*.2);
+
+        noStroke();
+    }
+
+    pop();
+ });
+
+
+ if(clsKeyGot) {
+    fill(140,130,100,180);
+    textSize(8);
+    textFont('monospace');
+    textAlign(CENTER,CENTER);
+    text('▶',W-14,clsFloorY-20);
  }
-   // 도서관 건물 실루엣 (0.35x)
-  let bldX = 800 - cx * 0.35;
-  fill(140, 160, 200, 200);
-  rect(bldX, 120, 320, 280);
-  fill(120, 140, 180, 200);
-  rect(bldX - 15, 108, 350, 25);
-  fill(160, 180, 220, 180);
-  for (let i = 0; i < 7; i++) rect(bldX + 10 + i * 44, 140, 16, 260);
-  fill(255, 230, 160, 160);
-  for (let r = 0; r < 4; r++)
-    for (let c = 0; c < 5; c++)
-      rect(bldX + 18 + c * 58, 160 + r * 52, 24, 32);
-  fill(60, 80, 140);
-  textSize(11);
-  textAlign(CENTER);
-  text("중앙도서관", bldX + 160, 122);
 
-  // 나무 (0.5x)
-  for (let i = 0; i < 12; i++) {
-    let tx = ((i * 420 + 80 - cx * 0.5) % (worldWidth + 200)) - 50;
-    fill(60, 140, 70, 200);
-    ellipse(tx, groundY - 55, 60, 80);
-    fill(50, 120, 55);
-    ellipse(tx + 8, groundY - 60, 42, 60);
-    fill(100, 60, 30);
-    rect(tx - 6, groundY - 28, 12, 28);
-  }
+  drawCatPixel(cat.x,cat.y);
 }
 
-function drawJomansikBG() {
+function drawCoopsket() {
+  background(188,186,183);
+  
   noStroke();
-  // 가을 구름
-  fill(250, 240, 220, 170);
-  let cx = cameraX;
-  for (let i = 0; i < 8; i++) {
-    let bx = ((i * 650 + 100 - cx * 0.2) % (worldWidth + 400)) - 100;
-    let by = 55 + sin(i * 1.7) * 30;
-    ellipse(bx, by, 140, 55);
-    ellipse(bx + 55, by - 18, 110, 45);
-  }
+  
+  for(let y=0;y<H*0.5;y++) {
+    fill(202,200,197,map(y,0,H*0.5,70,0));
+    rect(0,y,W,1);
+ }
 
-  // 조만식기념관 실루엣 (0.35x)
-  let bx2 = 900 - cx * 0.35;
-  fill(195, 175, 150, 210);
-  rect(bx2, 100, 300, 300);
-  fill(175, 155, 130, 210);
-  rect(bx2 - 18, 88, 336, 26);
-  fill(210, 195, 170, 190);
-  for (let i = 0; i < 8; i++) rect(bx2 + 8 + i * 36, 118, 16, 282);
-  fill(185, 205, 225, 190);
-  for (let r = 0; r < 3; r++) {
-    for (let c = 0; c < 5; c++) {
-      let wx = bx2 + 16 + c * 55, wy = 145 + r * 65;
-      arc(wx + 14, wy + 18, 26, 32, PI, 0);
-      rect(wx, wy + 18, 26, 26);
+ for(let x=0;x<120;x++) {
+    fill(215,213,210,map(x,0,120,55,0));
+    rect(x,0,1,H);
+ }
+
+ fill(165,163,160,75);
+ 
+ [100,220,380,520].forEach(bx => {
+    rect(bx-1,H*0.55,3,H*0.45);
+ });
+
+ const D = color(18,16,15), D2 = color(32,29,27);
+ 
+ fill(D);
+ rect(0,0,csBX,H);
+ 
+ fill(D2);
+ rect(csBX-4,0,4,H);
+
+ const BC = [85,110,145], BDK = [60,85,115], BLT = [105,130,165], rowH = 18;
+  
+ for(let r=0;r*rowH<csGY-csBTY;r++) {
+    let ry = csBTY+r*rowH, rh = min(rowH,csGY-ry);
+    
+    fill(BC[0],BC[1],BC[2]);
+    rect(csBX,ry,csBW,rh);
+    
+    fill(BLT[0],BLT[1],BLT[2]);
+    rect(csBX,ry,csBW,3);
+    
+    fill(BDK[0],BDK[1],BDK[2]);
+    rect(csBX,ry+rh-3,csBW,3);
+    
+    fill(BDK[0]-10,BDK[1]-10,BDK[2]-10);
+    
+    for(let s=0;s<4;s++) {
+        rect(csBX+6+s*(csBW-12)/3, ry+4, 4, rh-8);
+    }
+    
+    if(r%2===0) {
+        fill(130,155,190,110);
+        rect(csBX+8,ry+6,csBW-16,3);
+    }
+ }
+  
+ fill(BDK[0],BDK[1],BDK[2]);
+ rect(csBX-4,csBTY,4,csGY-csBTY);
+
+ fill(D);
+ rect(csS1X,csS1Y,csS1W,csGY-csS1Y);
+ 
+ fill(D2);
+ 
+ [0,26,52,78].forEach(off => {
+    rect(csS1X, csS1Y+off, csS1W, 5);
+ });
+
+ fill(D);
+ rect(csS1X-5,csS1Y,5,csGY-csS1Y);
+ rect(csS1X+csS1W,csS1Y,5,csGY-csS1Y);
+  
+ let ax = csS1X+csS1W, ay = csS1Y, bx2 = csS2X, by2 = csS2Y;
+ 
+ fill(D);
+ 
+ beginShape();
+ vertex(ax,ay);
+ vertex(bx2,by2);
+ vertex(bx2,by2+8);
+ vertex(ax,ay+8);
+ endShape(CLOSE);
+ 
+ fill(D2);
+ 
+ beginShape();
+ vertex(ax,ay);
+ vertex(bx2,by2);
+ vertex(bx2,by2+3);
+ vertex(ax,ay+3);
+ endShape(CLOSE);
+  
+ fill(D);
+ rect(csS2X,csS2Y,csS2W,csGY-csS2Y);
+ 
+ fill(D2);
+ 
+ [0,26,52,78].forEach(off => {
+    rect(csS2X,csS2Y+off,csS2W,5);
+ });
+ 
+ fill(D);
+ rect(csS2X-5,csS2Y,5,csGY-csS2Y);
+ rect(csS2X+csS2W,csS2Y,5,csGY-csS2Y);
+
+ let cx3 = csS2X+csS2W, cy3 = csS2Y, dx3 = csCX, dy3 = csCY;
+ 
+ fill(D);
+ 
+ beginShape();
+ vertex(cx3,cy3);
+ vertex(dx3,dy3);
+ vertex(dx3,dy3+8);
+ vertex(cx3,cy3+8);
+ endShape(CLOSE);
+ 
+ fill(D2);
+ beginShape();
+ vertex(cx3,cy3);
+ vertex(dx3,dy3);
+ vertex(dx3,dy3+3);
+ vertex(cx3,cy3+3);
+ endShape(CLOSE);
+  
+ fill(D);
+ rect(csCX,csCY,csCW,csGY-csCY);
+ 
+ fill(D2);
+ rect(csCX,csCY,csCW,6);
+ 
+ fill(200,195,185);
+ textSize(9);
+ textAlign(CENTER,CENTER);
+ text('CASHIER',csCX+csCW/2,csCY+16);
+  
+ fill(D);
+ rect(csEX,0,W-csEX,H);
+ 
+ fill(D2);
+ rect(csEX,0,4,H);
+ 
+ fill(D);
+ rect(0,csGY,W,H-csGY);
+  
+ csSlots.forEach(slot => {
+    if(slot.filled) return;
+    
+    let sw = 20, sh = 22, sx = slot.x-sw/2, sy = slot.y-sh/2;
+    
+    noFill();
+    stroke(175,170,162,190);
+    strokeWeight(1);
+    
+    drawingContext.setLineDash([3,3]);
+    rect(sx,sy,sw,sh,2);
+    drawingContext.setLineDash([]);
+    
+    noStroke();
+ });
+   
+ csItems.forEach(item => {
+    if(item.id===csHeld) return;
+    
+    drawCsItem(item.x,item.y,item);
+ });
+
+ if(csHeld) {
+    let item = csItems.find(i => i.id===csHeld);
+    drawCsItem(item.x, item.y-8, item);
+ }
+  
+ drawCatPixel(cat.x,cat.y);
+
+ if(csHeld) {
+    noSmooth();
+    
+    fill(18,16,15,140);
+    rect(W/2-50,8,100,20,2);
+
+    fill(180,175,165);
+    textSize(9);
+    textFont('monospace');
+    textAlign(CENTER,CENTER);
+    text('SHIFT: 내려놓기',W/2,18);
+ }
+}
+
+function drawCredits(){
+  let y = creditSY;
+
+  for(let item of credits) {
+    switch(item.t) {
+
+      case 'title':
+        fill(255);
+        textSize(32);
+        textAlign(CENTER,CENTER);
+        text(item.x,W/2,y);
+        y += 48;
+        break;
+
+      case 'subtitle':
+        fill(100);
+        textSize(11);
+        textAlign(CENTER,CENTER);
+        text(item.x.toUpperCase(),W/2,y);
+        y += 60;
+        break;
+
+      case 'name':
+        stroke(50);
+        strokeWeight(0.5);
+        line(W/2-80,y-8,W/2+80,y-8);
+
+        noStroke();
+        fill(255);
+        textSize(18);
+        textAlign(CENTER,CENTER);
+        text(item.x,W/2,y+10);
+
+        y += 36;
+        break;
+
+      case 'category':
+        noStroke();
+        fill(80);
+        textSize(10);
+        textAlign(CENTER,CENTER);
+        text(item.x.toUpperCase(),W/2,y);
+
+        y += 20;
+        break;
+
+      case 'task':
+        noStroke();
+        fill(180);
+        textSize(13);
+        textAlign(CENTER,CENTER);
+        text(item.x,W/2,y);
+
+        y += 28;
+        break;
+
+      case 'spacer':
+        y += 40;
+        break;
+
+      case 'fin':
+        noStroke();
+        fill(80);
+        textSize(13);
+        textAlign(CENTER,CENTER);
+        text(item.x,W/2,y);
+        y += 36;
+        break;
+
+      case 'special':
+        noStroke();
+        fill(60);
+        textSize(11);
+        textAlign(CENTER,CENTER);
+        text(item.x.toUpperCase(),W/2,y);
+
+        y += 30;
+        break;
     }
   }
-  fill(70, 50, 30);
-  textSize(10);
-  textAlign(CENTER);
-  text("조만식기념관", bx2 + 150, 102);
-
-  // 가을 나무 (0.5x)
-  for (let i = 0; i < 12; i++) {
-    let tx = ((i * 400 + 60 - cx * 0.5) % (worldWidth + 200)) - 50;
-    fill(200, 90, 40, 210);
-    ellipse(tx, groundY - 55, 58, 78);
-    fill(180, 70, 25);
-    ellipse(tx + 6, groundY - 58, 40, 58);
-    fill(110, 55, 25);
-    rect(tx - 6, groundY - 26, 12, 26);
-  }
 }
 
-function drawGround() {
+function getCreditH() {
+    let t = 0;
+    
+    for(let item of credits) {
+        switch(item.t) {
+            
+            case 'title':
+                t += 48;
+                break;
+                
+            case 'subtitle':
+                t += 60;
+                break;
+                
+            case 'name':
+                t += 36;
+                break;
+                
+            case 'category':
+                t += 20;
+                break;
+                
+            case 'task':
+                t += 28;
+                break;
+                
+            case 'spacer':
+                t += 40;
+                break;
+            
+            case 'fin':
+                t += 36;
+                break;
+                
+            case 'special':
+                t += 30;
+                break;
+        }
+    }
+    
+    return t;
+}
+
+function drawCsItem(x,y,item) {
+    noStroke();
+    
+    let c = item.col;
+    
+    if(item.id==='A') {
+        
+        fill(c[0],c[1],c[2],220);
+        rect(x-4,y,8,13,1);
+        
+        fill(c[0]+30,c[1]+30,c[2]+20,180);
+        rect(x-3,y+1,4,5);
+        
+        fill(160,160,170);
+        rect(x-2,y-3,5,4,1);
+    
+    } else if(item.id==='B') {
+        
+        fill(c[0],c[1],c[2],220);
+        rect(x-4,y,8,13,1);
+        
+        fill(c[0]+20,c[1],c[2]);
+        rect(x-4,y,8,5);
+        
+        fill(180,180,180);
+        rect(x-3,y-2,6,3,1);
+
+    } else if(item.id==='C') {
+        
+        fill(c[0],c[1],c[2],200);
+        triangle(x,y-2,x-7,y+13,x+7,y+13);
+
+        fill(25,25,25);
+        rect(x-7,y+7,14,4);
+        
+        fill(240,238,225);
+        triangle(x,y+1,x-4,y+11,x+4,y+11);
+    
+    } else if(item.id==='D') {
+        
+        fill(c[0],c[1],c[2],220);
+        rect(x-4,y,8,13,1);
+
+        fill(c[0]+20,c[1]+20,0);
+        rect(x-4,y,8,5);
+        
+        fill(c[0],c[1]-20,0,180);
+        ellipse(x,y+9,6,5);
+    
+    } else if(item.id==='E') {
+        
+        fill(c[0],c[1],c[2],220);
+        rect(x-5,y+3,10,10,1);
+        
+        fill(220,180,30);
+        rect(x-5,y+3,10,4);
+        
+        fill(200,195,180);
+        rect(x-4,y-2,8,6,1);
+    }
+}
+
+function drawCorridor() {
+  push();
+  translate(-camX, 0);
   noStroke();
-  if (currentStage === 1) {
-    fill(80, 160, 80);
-    rect(0, groundY, worldWidth, 12);
-    fill(100, 80, 55);
-    rect(0, groundY + 12, worldWidth, height - groundY - 12);
+  
+  fill(0);
+  rect(0,0,CW,H);
+
+  walls.forEach((w,i) => {
+    if (i < walls.length - 1) {
+      let rx = w.x + wallW, rw = walls[i+1].x - rx;
+      
+      fill(20,14,10);
+      rect(rx, ceilBase, rw, floorY-ceilBase);
+      
+      fill(26,18,12);
+      rect(rx, floorY-TILE, rw, TILE);
+    }
+  });
+
+  for (let tx = 0; tx < ceil(CW/TILE); tx++) {
+    let wx = tx*TILE, cy2 = ceilBase + ceilProfile[tx];
+    
+    fill(8,8,8);
+    rect(wx,0,TILE,cy2);
+  }
+
+  walls.forEach(w => {
+    fill(12,12,12);
+    rect(w.x, ceilBase, wallW, floorY-ceilBase);
+    
+    fill(36,36,38);
+    rect(w.x, ceilBase, 1, floorY-ceilBase);
+    rect(w.x + wallW - 1, ceilBase, 1, floorY-ceilBase);
+  });
+
+  fill(52,52,55);
+  rect(0,ceilBase,CW,3);
+  
+  fill(28,28,30);
+  rect(0, ceilBase+3, CW, 2);
+
+  fill(52,52,55);
+  rect(0, floorY, CW, 3);
+  
+  fill(28,28,30);
+  rect(0, floorY+3, CW, 3);
+  
+  fill(10,10,10);
+  rect(0, floorY+6, CW, H);
+
+  wins_c.forEach(w => {
+    fill(28,20,14);
+    rect(w.x - 4, w.y - 4, w.w + 8, w.h + 8);
+    
+    fill(8,14,22);
+    rect(w.x, w.y, w.w, w.h);
+    
+    fill(28,20,14);
+    rect(w.x, w.y + w.h / 2 - 1, w.w, 2);
+    rect(w.x + w.w / 2 - 1, w.y , 2, w.h);
+  });
+
+  rooms.forEach((rm,i) => {
+    let dx2 = rm.x - rm.w / 2, dy2 = floorY - rm.h, locked = (rm.type === 'churu' && !clsKey1Got);
+
+    fill(2,1,1);
+    rect(dx2, dy2, rm.w, rm.h);
+    
+    fill(44,33,22);
+    rect(dx2 - 3, dy2 - 2, rm.w + 6, 3);
+    rect(dx2 - 3, dy2, 3, rm.h);
+    rect(dx2 + rm.w, dy2, 3, rm.h);
+
+    fill(locked ? color(28,20,14) : color(38,28,18));
+    rect(dx2 + 1, dy2 + 1, rm.w - 2, rm.h - 1);
+
+    fill(110,96,58);
+    rect(dx2 + rm.w - 12, dy2 + rm.h * 0.46, 3, 8);
+
+    if (locked) {
+      fill(140,122,42);
+      rect(dx2 + rm.w / 2 - 3, dy2 + rm.h * 0.3, 7, 8);
+
+      noFill();
+      stroke(140,122,42);
+      strokeWeight(2);
+
+      arc(dx2 + rm.w / 2, dy2 + rm.h*0.3, 7, 7, PI, TWO_PI);
+
+      noStroke();
+    }
+
+    if (nearDoor && nearDoorIdx === i) {
+      noFill();
+      stroke(140,130,100,160);
+      strokeWeight(1);
+
+      rect(dx2 - 4, dy2 - 3, rm.w + 8, rm.h +3 );
+
+      noStroke();
+    }
+  });
+
+  if (nearDoor) {
+    let rm = rooms[nearDoorIdx], locked = (rm.type === 'churu' && !clsKey1Got);
+     
+    fill(170,160,130,200);
+    textSize(9);
+    textFont('monospace');
+    textAlign(CENTER,CENTER);
+
+    text(locked ? '[잠김]' : '[SHIFT] 입장', rm.x, floorY - rm.h - 16);
+  }
+
+  fill(52,52,55);
+  rect(pit.x, floorY, pit.w, 3);
+
+  fill(28,28,30);
+  rect(pit.x, floorY+3, pit.w, 3);
+
+  fill(0,0,0);
+  rect(pit.x, floorY+6, pit.w, H);
+
+  drawCatPixel(cat.x, cat.y);
+
+  pop();
+}
+
+function drawCatBack(cx,cy) {
+  const P = 8;
+  
+  noStroke();
+  fill(55,52,60);
+  
+  [
+    { y:0, x:-5, w:10 },
+    { y:-1, x:-6, w:12},
+    { y:-2, x:-6, w:12},
+    { y:-3, x:-6, w:12},
+    { y:-4, x:-6, w:12},
+    { y:-5, x:-5, w:10},
+    { y:-6, x:-5, w:10},
+    { y:-7, x:-5, w:10},
+    { y:-8, x:-5, w:10},
+    { y:-9, x:-5, w:10},
+    { y:-10, x:-4, w:8},
+    { y:-11, x:-4, w:8},
+    { y:-12, x:-3, w:6},
+    { y:-13, x:-3, w:6},
+    { y:-14, x:-2, w:4}
+  ].forEach(r => rect(cx + r.x * P, cy + r.y * P, r.w * P, P));
+  
+  rect(cx - 4*P, cy - 14*P, 2*P, P);
+  rect(cx - 4*P, cy - 15*P, P, P);
+
+  rect(cx + 2*P, cy - 14*P, 2*P, P);
+  rect(cx + 2*P, cy - 15*P, P, P);
+
+  rect(cx + 6*P, cy - 1*P, 2*P, P);
+  rect(cx + 7*P, cy - 3*P, 2*P, P);
+  rect(cx + 8*P, cy - 5*P, 2*P, P);
+  rect(cx + 8*P, cy - 7*P, 2*P, P);
+  rect(cx + 7*P, cy - 8*P, 2*P, P);
+  rect(cx + 6*P, cy - 9*P, 2*P, P);
+}
+
+function drawCatPixel(wx,wy) {
+  let cx = round(wx), cy = round(wy);
+  let d = cat.dir, walk = cat.onGround && abs(cat.vx) > 0.3, lf = floor(cat.stepT) % 2;
+  const held = scene === 'coopsket' ? csHeld : null;
+
+  noStroke();
+
+  fill(158,152,144);
+
+  if (d === 1) {
+    rect(cx-14, cy+17, 6, 3);
+    rect(cx-10, cy+13, 4, 4);
+    rect(cx-7, cy+8, 3, 5);
   } else {
-    fill(150, 120, 90);
-    rect(0, groundY, worldWidth, 12);
-    fill(120, 95, 65);
-    rect(0, groundY + 12, worldWidth, height - groundY - 12);
+    rect(cx+8, cy+17, 6, 3);
+    rect(cx+6, cy+13, 4, 4);
+    rect(cx+4, cy+8, 3, 5);
   }
-}
 
-function drawBricks() {
-  for (let b of bricks) {
-    drawPlatformRect(b.x, b.y, b.w, b.h, b.type || "stone");
+  fill(188,182,172);
+  rect(cx-8, cy+10, 16, 12);
+
+  fill(202,196,188);
+  rect(cx-5, cy+13, 10, 7);
+
+  if (held) {
+    fill(175,169,160);
+    rect(cx + d*5, cy + 4, 5, 3);
+    rect(cx + d*8, cy + 2, 4, 3);
   }
-}
+  fill(188,182,172);
+  rect(cx - 5 + d*3, cy + 2, 11, 9);
 
-function drawPlatformRect(x, y, w, h, type) {
-  noStroke();
-  if (type === "wood") {
-    fill(160, 105, 55);
-    rect(x, y, w, h, 4);
-    fill(140, 88, 40);
-    rect(x, y, w, 6, 4, 4, 0, 0);
-    // 나뭇결
-    stroke(130, 80, 35, 100);
-    strokeWeight(1);
-    for (let lx = x + 10; lx < x + w - 5; lx += 14)
-      line(lx, y + 4, lx + 3, y + h - 2);
-    noStroke();
-  } else if (type === "ice") {
-    fill(160, 220, 255, 200);
-    rect(x, y, w, h, 4);
-    fill(200, 240, 255, 140);
-    rect(x, y, w, 5, 4, 4, 0, 0);
-  } else if (type === "metal") {
-    fill(150, 160, 180);
-    rect(x, y, w, h, 2);
-    fill(180, 190, 210);
-    rect(x, y, w, 5, 2, 2, 0, 0);
-    stroke(100, 110, 130);
-    strokeWeight(0.5);
-    for (let lx = x; lx < x + w; lx += 20) line(lx, y, lx, y + h);
-    noStroke();
+  rect(cx - 3 + d*3, cy-4, 3, 5);
+  rect(cx + 2 + d*3, cy-3, 3, 4);
+
+  fill(215, 155, 155);
+  rect(cx - 2 + d*3, cy - 3, 2, 3);
+  rect(cx + 3 + d*3, cy - 2, 2, 3);
+
+  fill(18, 18, 20);
+  rect(cx + 4*d + d*3, cy + 4, 2, 2);
+
+  fill(145, 140, 132);
+  rect(cx + 6*d + d*3, cy + 5, 5, 1);
+  rect(cx + 6*d + d*3, cy + 7, 4, 1);
+
+  fill(175, 169, 160);
+
+  if (!cat.onGround) {
+    rect(cx-5, cy+22, 4, 4);
+    rect(cx+2, cy+22, 4, 4);
+  } else if (walk && lf === 0) {
+    rect(cx-5, cy+22, 4, 5);
+    rect(cx+2, cy+22, 4, 7);
   } else {
-    // stone (기본)
-    if (currentStage === 1) fill(180, 120, 80);
-    else fill(170, 150, 125);
-    rect(x, y, w, h, 3);
-    if (currentStage === 1) fill(200, 140, 100);
-    else fill(195, 175, 150);
-    rect(x, y, w, 6, 3, 3, 0, 0);
+    rect(cx-5, cy+22, 4, 7);
+    rect(cx+2, cy+22, 4, 5);
   }
-}
-
-function drawMovingPlatforms() {
-  for (let mp of movPlatforms) {
-    drawPlatformRect(mp.x, mp.y, mp.w, mp.h, "metal");
-    // 이동 방향 화살표
-    fill(255, 200, 50, 180);
-    noStroke();
-    let arrowX = mp.x + mp.w / 2 + (mp.dir > 0 ? 6 : -6);
-    triangle(
-      arrowX + mp.dir * 6, mp.y + mp.h / 2,
-      arrowX - mp.dir * 5, mp.y + mp.h / 2 - 5,
-      arrowX - mp.dir * 5, mp.y + mp.h / 2 + 5
-    );
-  }
-}
-
-function drawGoalFlag() {
-  let gx = worldWidth - 300;
-  let gy = groundY - 120;
-
-  // 기둥
-  stroke(180, 160, 130);
-  strokeWeight(4);
-  line(gx, gy, gx, groundY);
-  noStroke();
-
-  // 깃발 (나부낌)
-  let wave = sin(frameTimer * 0.08) * 6;
-  fill(0, 80, 200);
-  beginShape();
-  vertex(gx, gy);
-  vertex(gx + 50, gy + 10 + wave);
-  vertex(gx + 50, gy + 30 + wave);
-  vertex(gx, gy + 22);
-  endShape(CLOSE);
-  fill(255);
-  textSize(9);
-  textAlign(LEFT);
-  text("SU", gx + 10, gy + 20 + wave * 0.5);
-
-  // 빛나는 별
-  fill(255, 220, 50);
-  let glow = sin(frameTimer * 0.1) * 3;
-  ellipse(gx, gy, 14 + glow, 14 + glow);
-
-  // GOAL 문구
-  fill(255, 220, 50);
-  textAlign(CENTER);
-  textSize(14);
-  text("GOAL!", gx, gy - 16);
-}
-
-function drawPlayer() {
-  let pl = player;
-  // 무적 깜빡임
-  if (pl.invincible > 0 && floor(frameCount / 4) % 2 === 0) return;
-
-  // 사망 애니
-  let deathScale = 1;
-  let deathAlpha = 255;
-  if (!pl.alive) {
-    deathScale = max(0, 1 - pl.deathAnim / 60);
-    deathAlpha = map(pl.deathAnim, 0, 60, 255, 0);
-  }
-
-  push();
-  translate(pl.x, pl.y);
-  tint(255, deathAlpha);
-  scale(deathScale);
-  drawCat(0, 0, pl.facingRight, !pl.grounded, pl.walkFrame);
-  noTint();
-  pop();
-}
-
-function drawCat(ox, oy, facingRight, isJumping, frame) {
-  let fx = facingRight ? 1 : -1;
-  push();
-  translate(ox, oy);
-  scale(fx, 1);
-  noStroke();
-
-  // 꼬리
-  let tailWag = isJumping ? 15 : sin(frame * 0.12) * 10;
-  stroke(210, 190, 155); strokeWeight(4); noFill();
-  beginShape();
-  curveVertex(-14, 6);
-  curveVertex(-18, 14);
-  curveVertex(-20 + tailWag * 0.6, 22);
-  curveVertex(-15 + tailWag, 18);
-  endShape();
-  noStroke();
-
-  // 다리 (걷기)
-  fill(210, 190, 155);
-  let leg = isJumping ? 8 : sin(frame * 0.3) * 8;
-  ellipse(-8,  18 + leg * 0.4, 9, 13);
-  ellipse(8,   18 - leg * 0.4, 9, 13);
-
-  // 몸통
-  fill(230, 210, 170);
-  ellipse(0, 5, 32, 24);
-
-  // 줄무늬
-  stroke(200, 175, 130); strokeWeight(1.5);
-  line(-7, 2, -11, 9); line(0, 5, -2, 12); line(7, 2, 9, 9);
-  noStroke();
-
-  // 머리
-  fill(230, 210, 170);
-  ellipse(0, -10, 28, 24);
-
-  // 귀
-  fill(230, 210, 170);
-  triangle(-10, -18, -14, -30, -3, -20);
-  triangle(10,  -18,  14, -30,  3, -20);
-  fill(255, 175, 175);
-  triangle(-9, -19, -12, -27, -4, -21);
-  triangle(9,  -19,  12, -27,  4, -21);
-
-  // 눈
-  fill(50, 35, 25);
-  ellipse(-6, -11, 6, isJumping ? 3 : 5);
-  ellipse(6,  -11, 6, isJumping ? 3 : 5);
-  fill(255);
-  ellipse(-5, -12, 2.5, 2.5);
-  ellipse(7,  -12, 2.5, 2.5);
-
-  // 코
-  fill(255, 120, 130);
-  ellipse(0, -5, 6, 4);
-
-  // 수염
-  stroke(210, 190, 160); strokeWeight(0.8);
-  line(-1, -5, -18, -7); line(-1, -5, -18, -3);
-  line(1,  -5,  18, -7); line(1,  -5,  18, -3);
-  noStroke();
-
-  // SU 마크
-  fill(0, 51, 153, 200);
-  textSize(7); textAlign(CENTER, CENTER);
-  text("SU", 0, 5);
-
-  pop();
-}
-
-// ─── HUD ──────────────────────────────────────────────────
-function drawHUD() {
-  push();
-  resetMatrix();
-
-  // 상단 바
-  noStroke();
-  fill(0, 0, 0, 150);
-  rect(0, 0, width, 52);
-
-  // 스테이지
-  fill(180, 210, 255);
-  textSize(16); textAlign(LEFT);
-  text(currentStage === 1 ? "STAGE 1 : 중앙도서관" : "STAGE 2 : 조만식기념관", 14, 32);
-
-  // 점수
-  fill(255, 220, 80);
-  textSize(18); textAlign(CENTER);
-  text("SCORE  " + score, width / 2, 32);
-
-  // 목숨 (발바닥 아이콘)
-  textAlign(RIGHT);
-  fill(200); textSize(14);
-  text("LIVES", width - 20 - MAX_LIVES * 36, 28);
-  for (let i = 0; i < MAX_LIVES; i++) {
-    if (i < lives) fill(255, 200, 200);
-    else           fill(60);
-    drawPaw(width - 16 - (MAX_LIVES - i) * 36, 12, 28);
-  }
-
-  // 코인 카운트
-  let collected = coins.filter(c => c.collected).length;
-  fill(255, 210, 40);
-  textSize(15); textAlign(RIGHT);
-  text("🪙 " + collected + " / " + coins.length, width - 14, 48);
-  // (p5.js에서 이모지 안 되면 text로 대체)
-
-  pop();
-}
-
-function drawPaw(x, y, s) {
-  let r = s * 0.38;
-  ellipse(x + s/2, y + s * 0.62, r * 2, r * 1.7);
-  ellipse(x + s * 0.25, y + s * 0.28, r * 0.85, r * 0.85);
-  ellipse(x + s * 0.5,  y + s * 0.18, r * 0.85, r * 0.85);
-  ellipse(x + s * 0.75, y + s * 0.28, r * 0.85, r * 0.85);
 }

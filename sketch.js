@@ -1,173 +1,384 @@
-let player;
-let gravity       = 0.65;
-let groundY;            // setup에서 height 기반 계산
-let worldWidth    = 5000;
-let bricks        = [];   // 일반 발판
-let movPlatforms  = [];   // 움직이는 발판
-let obstacles     = [];   // 빨간 장애물 (즉사)
-let fallingObstacles = [];
-let coins         = [];
-let particles     = [];
-let bgParticles   = []; // 배경 먼지 파티클
-
-let cameraX       = 0;
-let gameState     = "intro"; // intro | lobby | game | clear | ending | gameover
-let currentStage  = 1;
-
-let lives         = 3;
-const MAX_LIVES   = 3;
-
-let score         = 0;
-let clearFade     = 0;
-let gameOverFade  = 0;
-let bgBrightness  = 20;
-let frameTimer    = 0;
-
-// 점프 보조
-let coyoteTimer   = 0;   // 발판 끝 관용 프레임
-let jumpBuffer    = 0;   // 착지 직전 점프 예약
-const COYOTE_MAX  = 8;
-const JUMP_BUF_MAX= 10;
-
-// 화면 전환 페이드
-let fadeAlpha     = 0;
-let fadingOut     = false;
-let fadeTarget    = "";
-
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(W, H);
   pixelDensity(1);
-  groundY = height - 80;
-  initPlayer();
-  generateBgParticles();
+  noSmooth();
+  textFont('monospace');
+
+  MBX = W - 36;
 }
 
-function initPlayer() {
-  player = {
-    x: 100, y: 200,
-    prevX: 100, prevY: 200,
-    r: 22,          // 충돌 반경 (원형)
-    vx: 0, vy: 0,
-    speed: 1.0,
-    maxSpeed: 7.5,
-    jumpPower: -16,
-    grounded: false,
-    friction: 0.80,
-    facingRight: true,
-    walkFrame: 0,
-    invincible: 0,  // 무적 프레임 (피격 후)
-    doubleJumpAvail: true,
-    deathAnim: 0,
-    alive: true,
-  };
+function doRestart() {
+  scene = 'intro_location';
+  seqTimer = 0;
+  clsKey1Got = false;
+  
+  cat = { x:140, y:floorY-32, vx:0, vy:0, onGround:false, dir:1, stepT:0};
+  
+  camX = 0; 
+  sliding = false;
+  menuOpen = false;
 }
 
-function generateBgParticles() {
-  bgParticles = [];
-  for (let i = 0; i < 60; i++) {
-    bgParticles.push({
-      x: random(width), y: random(height),
-      size: random(1, 3), speed: random(0.2, 0.8), opacity: random(80, 180)
-    });
-  }
-}
-
-// ─── DRAW (메인 루프) ─────────────────────────────────────────
 function draw() {
-  frameTimer++;
+  seqTimer++;
 
-  if      (gameState === "intro")    drawIntro();
-  else if (gameState === "lobby")    drawLobby();
-  else if (gameState === "game")     runGame();
-  else if (gameState === "clear")    runClear();
-  else if (gameState === "ending")   drawEnding();
-  else if (gameState === "gameover") drawGameOver();
+  // ── 인트로들
+  if (scene === 'intro_location') {
+    background(0);
+    
+    let a = 255;
+    if (seqTimer < 30)
+      a = map(seqTimer, 0, 30, 0, 255);
+    
+    if (seqTimer > 150)
+      a = map(seqTimer, 150, 180, 255, 0);
 
-  drawFadeOverlay();
-}
+    fill(200,196,188,a);
+    textSize(18);
+    textAlign(CENTER,CENTER);
+    text('조만식기념관', W/2, H/2);
 
-// ─── 페이드 전환 ─────────────────────────────────────────────
-function startFadeOut(target) {
-  fadingOut   = true;
-  fadeTarget  = target;
-  fadeAlpha   = 0;
-}
-
-function drawFadeOverlay() {
-  if (!fadingOut && fadeAlpha <= 0) return;
-  if (fadingOut) {
-    fadeAlpha = min(fadeAlpha + 8, 255);
-    if (fadeAlpha >= 255) {
-      fadingOut  = false;
-      gameState  = fadeTarget;
+    if (seqTimer >= 180) {
+      scene = 'corridor';
+      seqTimer = 0;
+      cat.x = 140;
+      cat.y = floorY - 32;
     }
-  } else {
-    fadeAlpha = max(fadeAlpha - 8, 0);
-  }
-  noStroke();
-  fill(0, fadeAlpha);
-  rect(0, 0, width, height);
-}
-
-// ═══════════════════════════════════════════════════════════
-//  GAME LOOP
-// ═══════════════════════════════════════════════════════════
-function runGame() {
-  // 배경
-  drawStageBG();
-
-  // 클리어 체크 (오른쪽 끝 도달)
-  if (player.x > worldWidth - 300 && player.alive) {
-    clearFade   = 0;
-    bgBrightness = (currentStage === 1) ? 20 : 15;
-    gameState   = "clear";
-    spawnParticles(player.x, player.y, [255,220,80], 30);
     return;
   }
 
-  if (player.alive) {
-    updatePlayer();
-    checkGround();
-    checkWalls();
-  } else {
-    player.deathAnim++;
-    if (player.deathAnim > 80) respawnOrGameOver();
+  if (scene === 'intro_cls') {
+    background(0);
+    
+    let a = 255;
+    if (seqTimer < 40)
+      a = map(seqTimer, 0, 40, 0, 255);
+    
+    if (seqTimer > 260)
+      a = map(seqTimer, 260, 300, 255, 0);
+
+    fill(200,196,188,a);
+    textSize(14);
+    textAlign(CENTER,CENTER);
+    text('저기 앞에 열쇠다', W/2, H/2);
+
+    if (seqTimer >= 300) {
+      scene = 'fadein';
+      fadingTo = 'classroom';
+      fadeAlpha = 255;
+    }
+    return;
   }
 
-  updateMovingPlatforms();
-  updateFallingObstacles();
-  updateCoins();
-  updateParticles();
-  updateCamera();
+  if (scene === 'pit_exclaim') {
+    background(0);
+    
+    let a = 255;
+    
+    if (seqTimer < 30) 
+      a = map(seqTimer, 0, 30, 0, 255);
 
-  // ── 카메라 공간 렌더 ──
-  push();
-  translate(-cameraX, 0);
+    if (seqTimer > 260) 
+      a = map(seqTimer, 260, 300, 255, 0);
 
-  drawParallaxBG();
-  drawGround();
-  drawBricks();
-  drawMovingPlatforms();
-  drawGoalFlag();
-  drawFallingObstacles();
-  drawObstacles();
-  drawCoins();
-  drawParticles();
+    fill(220,35,35,a);
+    textSize(52);
+    textAlign(CENTER,CENTER);
+    text('!!', W/2, H/2);
 
-  if (player.alive || player.deathAnim < 60) drawPlayer();
+    if (seqTimer >= 300) {
+      scene = 'intro_cs';
+      seqTimer = 0;
+    }
+    return;
+  }
 
-  checkFallingObstacleCollision();
-  checkObstacleCollision();
+  if (scene === 'intro_cs') {
+    background(175,173,170);
+    
+    for(let y = 0; y < H; y++) {
+      fill(185, 183, 180, map(y,0,H,35,0));
+      rect(0, y, W, 1);
+    }
 
-  pop();
-  // ── 카메라 공간 끝 ──
+    let a = 255;
+    
+    if (seqTimer < 40)
+      a = map(seqTimer, 0, 40, 0, 255);
+    
+    if (seqTimer > 260) 
+      a = map(seqTimer, 260, 300, 255, 0);
 
-  drawHUD();
-}
+    fill(50,48,46,a);
+    textSize(14);
+    textAlign(CENTER,CENTER);
+    text('여기서 물건을 들고 가볼까?', W/2, H/2);
 
-function updateCamera() {
-  let targetX = player.x - width * 0.38;
-  cameraX = lerp(cameraX, targetX, 0.09);
-  cameraX = max(cameraX, 0);
-  cameraX = min(cameraX, worldWidth - width);
+    if (seqTimer >= 300) {
+      initCs();
+      scene = 'fadein';
+      fadingTo = 'coopsket';
+      fadeAlpha = 255;
+      seqTimer = 0;
+    }
+    return;
+  }
+
+  // ── 엔딩
+  if (scene === 'ending_monologue') {
+    background(0);
+    endTimer++;
+    
+    for(let i = 0; i < endLines.length; i++) {
+      let line = endLines[i];
+      
+      if (endTimer < line.d)
+        break;
+
+      let t = endTimer - line.d;
+      let a = 255;
+
+      if (t < 30)
+        a = map(t, 0, 30, 0, 255);
+
+      fill(200,196,188,a);
+      textSize(14);
+      textAlign(CENTER,CENTER);
+      text(line.text, W/2, H/2 - 40 + i*40);
+    }
+
+    if (endTimer >= 460) {
+      scene = 'ending_eye';
+      seqTimer = 0;
+    }
+    return;
+  }
+
+  if (scene === 'ending_eye') {
+    background(18,16,14);
+
+    let open = constrain(map(seqTimer, 0, 90, 0, H/2), 0, H/2);
+
+    fill(0);
+    rect(0, 0, W, H/2 - open);
+    
+    fill(0);
+    rect(0, H/2+open, W, H/2 + 1);
+
+    stroke(8,6,6);
+    strokeWeight(3);
+    
+    line(0, H/2 - open, W, H/2 - open);
+    line(0, H/2 + open, W, H/2 + open);
+    
+    noStroke();
+
+    if (seqTimer >= 110) {
+      scene = 'ending_photo';
+      seqTimer = 0;
+    }
+    return;
+  }
+
+  if (scene === 'ending_photo') {
+    // 가을 캠퍼스 픽셀
+    background(115,155,195);
+    noStroke();
+
+    fill(80,120,60);
+    rect(0, H*0.45, W, H*0.55);
+    
+    fill(60,90,40);
+    rect(0, H*0.6, W, H*0.4);
+
+    fill(100,90,80);
+    rect(W*0.25, H*0.15, W*0.18, H*0.35);
+    
+    fill(90,80,70);
+    rect(W*0.44, H*0.1, W*0.22, H*0.4);
+
+    fill(140,160,185);
+    
+    for (let i = 0; i < 3; i++)
+      for (let j = 0; j < 4; j++)
+        rect(W*0.27 + i*22, H*0.18 + j*22, 16, 14);
+      
+    for (let i = 0; i < 4; i++)
+      for (let j = 0; j < 5; j++)
+        rect(W*0.46 + i*26, H*0.14 + j*22, 18, 14);
+
+    [
+      [W*0.12, H*0.42],
+      [W*0.72, H*0.38],
+      [W*0.82, H*0.36],
+      [W*0.18, H*0.44]
+    ].forEach(([tx,ty]) => {
+      fill(60,45,20);
+      rect(tx-3, ty, 6, H*0.55 - ty + 20);
+      
+      fill(200,140,30,220);
+      ellipse(tx, ty, 55, 65);
+      
+      fill(180,80,20,160);
+      ellipse(tx+8, ty+10, 40, 50);
+    });
+
+    fill(160,110,20,180);
+    
+    for (let i = 0; i < 30; i++)
+      ellipse(random(W), H*0.78 + random(H*0.2), 8, 5);
+
+    if (seqTimer < 40) {
+      fill(0, 0, 0, map(seqTimer, 0, 40, 255, 0));
+      rect(0, 0, W, H);
+    }
+
+    if (seqTimer > 260) {
+      fill(0, 0, 0, map(seqTimer, 260, 300, 0, 255));
+      rect(0, 0, W, H);
+    }
+
+    if (seqTimer >= 300) {
+      scene = 'credits';
+      creditSY = H;
+      seqTimer = 0;
+    }
+    return;
+  }
+
+  if (scene === 'credits') {
+    background(0);
+    
+    creditSY -= 0.8;
+    
+    drawCredits();
+
+    if (creditSY < -getCreditH())
+      creditSY = H;
+    
+    return;
+  }
+
+  // ── 메인
+  if (scene === 'corridor') {
+
+    if (!sliding && !menuOpen)
+      updateCorridor();
+    else if (sliding)
+      updateSlide();
+
+    camX = lerp(camX, constrain(cat.x - W/2, 0, CW-W), 0.12);
+
+    drawCorridor();
+
+    if (sliding) {
+      fill(0, 0, 0, slideAlpha*0.85);
+      rect(0, 0, W, H);
+    }
+
+  } else if(scene === 'fadeout') {
+    background(0);
+    
+    fadeAlpha = min(fadeAlpha + 10, 255);
+    
+    fill(0, 0, 0, fadeAlpha);
+    rect(0, 0, W, H);
+
+    if (fadeAlpha >= 255) {
+      if (fadingTo === 'churu')
+        initChuru();
+      else if (fadingTo === 'prof')
+        initProf();
+      else if (fadingTo !== 'coopsket')
+        initCorReturn();
+
+      scene = 'fadein';
+    }
+  } else if(scene === 'fadein') {
+    if (fadingTo === 'classroom') 
+      drawClassroom(); 
+    else if (fadingTo === 'churu') 
+      drawChuru(); 
+    else if (fadingTo === 'prof') 
+      drawProf(); 
+    else if (fadingTo === 'coopsket') 
+      drawCoopsket(); 
+    else 
+      drawCorridor();
+
+    fadeAlpha = max(fadeAlpha-8, 0);
+    
+    fill(0, 0, 0, fadeAlpha);
+    rect(0, 0, W, H);
+
+    if (fadeAlpha <= 0)
+      scene = fadingTo === 'corridor' ? 'corridor' : fadingTo;
+  } else if (scene === 'classroom'){
+    if (!clsDead && !clsCleared)
+      updateCls();
+    if(clsDead)
+      clsDeadA = min(clsDeadA+4, 255);
+    drawClassroom();
+    if (clsDead) {
+      fill(0, 0, 0, clsDeadA);
+      rect(0, 0, W, H);
+      if (clsDeadA > 180) {
+        fill(180, 60, 60);
+        textSize(12);
+        textAlign(CENTER,CENTER);
+        text('...', W/2, H/2 - 10);
+
+        fill(120, 110, 90);
+        textSize(9);
+        text('[R] 재시작', W/2, H/2+14);
+      }
+    }
+
+    if (clsCleared) {
+      clsClearA = min(clsClearA + 5, 255);
+      fill(0, 0, 0, clsClearA);
+      rect(0, 0, W, H);
+
+      if (clsClearA >= 255) {
+        initCorReturn();
+        fadingTo = 'corridor';
+        scene = 'fadein';
+        fadeAlpha = 255;
+      }
+    }
+  } else if (scene === 'churu') {
+    drawChuru();
+  } else if (scene === 'prof') {
+    drawProf();
+  } else if (scene === 'coopsket') {
+    if (!menuOpen)
+      updateCs();
+    drawCoopsket();
+    if (csCleared) {
+      csClearA = min(csClearA + 2, 255);
+      noStroke();
+      for (let x = csEX; x < W; x++) {
+        fill(255, 252, 245, map(x, csEX, W, csClearA*0.95, csClearA*0.1));
+        rect(x, 0, 1, H);
+      }
+
+      if (csClearA > 200) {
+        let wo = constrain(map(csClearA, 200, 255, 0, 255), 0, 255);
+        fill(255, 255, 255, wo);
+        rect(0, 0, W, H);
+        
+        if(wo >= 255) {
+          scene = 'ending_monologue';
+          endTimer = 0;
+        }
+      }
+    }
+  }
+
+  if (['corridor','classroom','coopsket'].includes(scene)) {
+    drawMenuBtn();
+    
+    if (menuOpen)
+      drawMenuPopup();
+  }
 }

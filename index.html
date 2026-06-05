@@ -2,31 +2,34 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>Soongnyangi Adventure</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+  <title>FLARE</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    canvas {
+      image-rendering: pixelated;
+    }
+  </style>
 </head>
-<body style="margin:0; overflow:hidden;">
+<body>
 
-  <!-- 전역 변수·상수를 가장 먼저 -->
-  <script src="sketch.js"></script>
+  <!-- ✅ script 태그는 body 맨 아래에 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
 
-  <!-- 스테이지 데이터 (bricks, coins 등 배열을 채우는 함수) -->
-  <script src="stages.js"></script>
-
-  <!-- 플레이어 로직 -->
-  <script src="player.js"></script>
-
-  <!-- 적, 코인, 파티클 등 개체 -->
-  <script src="entities.js"></script>
-
-  <!-- 배경/발판/HUD 드로우 -->
-  <script src="draw.js"></script>
-
-  <!-- UI 화면 (인트로/로비/클리어/엔딩) -->
-  <script src="ui.js"></script>
-
-  <!-- 입력 처리 — 항상 마지막 -->
-  <script src="input.js"></script>
+  <script src="js/utility.js"></script>
+  <script src="js/story.js"></script>
+  <script src="js/stages.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/draw.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/sketch.js"></script>
 
 </body>
 </html>
