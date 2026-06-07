@@ -1,3 +1,6 @@
+let bgm;
+let schoolImg;
+
 function preload() {
   preloadMusic();
   schoolImg = loadImage('school.png');
@@ -389,8 +392,7 @@ function draw() {
 }
 
 
-let bgm;
-let schoolImg;
+
 
 function preload() {
   soundFormats('mp3');
