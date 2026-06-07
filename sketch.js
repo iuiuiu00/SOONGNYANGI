@@ -1,4 +1,5 @@
 function preload() {
+  preloadMusic();
   schoolImg = loadImage('school.png');
 }
 
@@ -7,7 +8,7 @@ function setup() {
   pixelDensity(1);
   noSmooth();
   textFont('monospace');
-
+ playBGM();
   MBX = W - 36;
 }
 
