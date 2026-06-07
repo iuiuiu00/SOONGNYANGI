@@ -382,3 +382,22 @@ function draw() {
       drawMenuPopup();
   }
 }
+
+
+let bgm;
+let schoolImg;
+
+function preload() {
+  soundFormats('mp3');
+  bgm = loadSound('Void_Lantern.mp3');
+  schoolImg = loadImage('school.png');
+}
+
+function setup() {
+  createCanvas(W, H);
+  pixelDensity(1);
+  noSmooth();
+  textFont('monospace');
+  bgm.setVolume(0.5);
+  bgm.loop();
+}
