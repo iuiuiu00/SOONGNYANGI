@@ -1,3 +1,7 @@
+function preload() {
+  schoolImg = loadImage('school.png');
+}
+
 function setup() {
   createCanvas(W, H);
   pixelDensity(1);
