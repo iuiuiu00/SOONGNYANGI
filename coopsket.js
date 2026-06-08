@@ -339,6 +339,8 @@ function handleCsShift() {
 
     if (csItems.find(i => i.id === 'A' && i.onCash) && csItems.find(i => i.id === 'D' && i.onCash)) {
         csCleared = true;
+        bgm.stop();
+    coopsketBgm.play();
     }
   } else {
     let closest = null, minD = 55;
