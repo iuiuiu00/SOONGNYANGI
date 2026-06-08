@@ -1,7 +1,7 @@
 function preload() {
   soundFormats('mp3');
-  //bgm = loadSound('Void Lantern (1).mp3');   // 여기!
-  //schoolImg = loadImage('KakaoTalk_Photo_2026-06-09-00-17-16-1.jpeg');
+  bgm = loadSound('Void Lantern (1).mp3');   // 여기!
+  schoolImg = loadImage('KakaoTalk_Photo_2026-06-09-00-17-16-1.jpeg');
 }
 
 let cnv;
