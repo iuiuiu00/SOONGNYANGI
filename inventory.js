@@ -10,7 +10,9 @@ const ITEM_DATABASE = {
   'usb':    { name: '보안 USB',    desc: '신양관 노트북에 꽂을 수 있는 암호화 데이터.', color: '#3498DB' },
   'sn_code':{ name: '메모 조각',   desc: '비상구 비밀번호의 힌트가 적혀 있다.',     color: '#ECF0F1' },
   'battery':{ name: '보조배터리', desc: '방전된 장치를 1회 충전할 수 있다.',       color: '#2ECC71' },
+  'churu':  { name: '츄르',       desc: '냥이가 좋아할 츄르. 얻으면 인벤토리에 추가된다.', color: '#E67E22' },
   'plushie':{ name: '슝슝이 인형', desc: '희귀한 슝슝이 인형. 인벤토리에 소중히 보관한다.', color: '#F39C12' }
+  , 'textbook': { name: '전공책', desc: '낡은 전공책. 이건... 이스터에그인가?', color: '#8E44AD' }
 };
 
 // UI 레이아웃 상수
@@ -80,6 +82,8 @@ function drawInventoryUI() {
   if (typeof isCutscene !== 'undefined' && isCutscene) return;
   if (typeof inCutscene !== 'undefined' && inCutscene) return;
   if (typeof dialogueText !== 'undefined' && dialogueText !== '') return;
+  if (scene === 'classroom' && typeof clsDead !== 'undefined' && clsDead) return;
+  if (scene === 'churu' || scene === 'prof') return;
 
   // 3. [필터링] 신양관 내부 UI(노트북 창, 도어락 창)가 커다랗게 열려있을 때도 가려주기
   if (typeof snState !== 'undefined') {
@@ -113,16 +117,57 @@ function drawInventoryUI() {
       let item = ITEM_DATABASE[itemId];
 
         if (item) {
-        // Special icon for plushie: two white circles (head + body)
-        if (itemId === 'plushie') {
+          if (itemId === 'key1') {
+            const ix = sx + SLOT_SIZE / 2;
+            const iy = sy + SLOT_SIZE / 2 + 2;
+            noStroke();
+            fill(185,160,44);
+            rect(ix - 8, iy, 14, 4, 2);
+            rect(ix + 4, iy, 4, 3, 1);
+            rect(ix + 4, iy + 4, 4, 3, 1);
+            fill(195,170,50);
+            rect(ix - 10, iy - 8, 10, 10, 2);
+            fill(205,205,200);
+            rect(ix - 9, iy - 7, 8, 8, 2);
+            fill(195,170,50);
+            rect(ix - 8, iy - 6, 6, 6, 2);
+            fill(205,205,200);
+            rect(ix - 7, iy - 5, 4, 4, 2);
+          } else if (itemId === 'churu') {
+            const ix = sx + SLOT_SIZE / 2;
+            const iy = sy + SLOT_SIZE / 2 + 2;
+            noStroke();
+            fill(245,235,230);
+            rect(ix - 9, iy - 16, 18, 32, 4);
+            fill(72,140,80);
+            rect(ix - 9, iy - 16, 18, 10, 4);
+            fill(55,110,62);
+            rect(ix - 7, iy - 18, 14, 6);
+            triangle(ix - 3, iy - 18, ix + 3, iy - 18, ix, iy - 24);
+          } else if (itemId === 'plushie') {
           const ix = sx + SLOT_SIZE / 2;
           const iy = sy + SLOT_SIZE / 2;
           noStroke();
-          // body
+          
           fill(255);
           ellipse(ix, iy + 6, 24, 20);
-          // head
+          
           ellipse(ix, iy - 6, 18, 18);
+          } else if (itemId === 'textbook') {
+            const ix = sx + SLOT_SIZE / 2;
+            const iy = sy + SLOT_SIZE / 2 + 2;
+            noStroke();
+            fill(140,85,165);
+            rect(ix - 10, iy - 10, 20, 20, 3);
+            fill(110,55,135);
+            rect(ix - 10, iy - 10, 4, 20, 2);
+            fill(230,220,180);
+            rect(ix - 4, iy - 6, 10, 12, 2);
+            stroke(180,170,140);
+            strokeWeight(1);
+            line(ix - 2, iy - 2, ix + 2, iy - 2);
+            line(ix - 2, iy + 2, ix + 2, iy + 2);
+            noStroke();
         } else {
           fill(item.color);
           stroke(255, 150);
@@ -131,18 +176,37 @@ function drawInventoryUI() {
         }
 
         if (isHover) {
-          // Show item name directly above the slot when hovering an occupied slot
+        
           push();
           textAlign(CENTER, BOTTOM);
-          textSize(11);
+          
           noStroke();
           fill(240);
-          text(item.name, sx + SLOT_SIZE / 2, sy - 6);
+          if (itemId === 'textbook') {
+              textSize(11);
+              text(item.name, sx + SLOT_SIZE / 2, sy - 28);
+              textSize(9);
+              text('누군가의 낙서의 흔적이 보인다.', sx + SLOT_SIZE / 2, sy - 16);
+              text('"오렌지주스 먹고싶다..."', sx + SLOT_SIZE / 2, sy - 4);
+            } else {
+              textSize(11);
+              text(item.name, sx + SLOT_SIZE / 2, sy - 6);
+            }
+          
           pop();
         }
       }
     }
   }
+  // 이스터에그 획득 현황 표시 (상단 중앙)
+  const eggItems = ['plushie', 'churu', 'textbook'];
+  const eggCount = inventory.filter(id => eggItems.includes(id)).length;
+  const eggText = `획득한 이스터에그 ${eggCount}/${eggItems.length}`;
+  noStroke();
+  fill(220);
+  textSize(10);
+  textAlign(CENTER, TOP);
+  text(eggText, W / 2, 10);
   pop();
 }
 
@@ -193,6 +257,20 @@ function handleInventoryKeyPress(k) {
     }
   }
 }
+function handleInventoryClick(mx, my) {
+  if (my < INV_Y || my > INV_Y + SLOT_SIZE) return false;
+
+  const slotArea = SLOT_SIZE + SLOT_GAP;
+  let idx = floor((mx - INV_X) / slotArea);
+  if (idx < 0 || idx >= INV_MAX_SLOTS) return false;
+
+  let slotLeft = INV_X + idx * slotArea;
+  if (mx < slotLeft || mx > slotLeft + SLOT_SIZE) return false;
+  if (idx >= inventory.length) return false;
+
+  executeItemAction(inventory[idx]);
+  return true;
+}
 
 /**
  * 아이템별 사용했을 때 일어나는 인게임 효과 정의 구역
@@ -212,10 +290,23 @@ function executeItemAction(itemId) {
       break;
       
     case 'key1':
-      if (scene === 'corridor') {
-        // 복도에서 교실 문 앞 상호작용 체크 연동 가능
-        snState.hint = "원래는 문 앞에서 자동으로 사용되도록 짜는 것이 편합니다.";
-        snState.hintTimer = 120;
+      if (scene === 'corridor' && nearDoor && nearDoorIdx > -1 && rooms[nearDoorIdx].type === 'churu') {
+        if (!clsKey1Used) {
+          clsKey1Used = true;
+          itemUse('key1');
+          if (typeof snState !== 'undefined') {
+            snState.hint = "교실 앞 잠긴 문을 열었다!";
+            snState.hintTimer = 120;
+          }
+        } else if (typeof snState !== 'undefined') {
+          snState.hint = "이미 문이 열려 있다.";
+          snState.hintTimer = 120;
+        }
+      } else {
+        if (typeof snState !== 'undefined') {
+          snState.hint = "아직 사용할 곳이 없다.";
+          snState.hintTimer = 120;
+        }
       }
       break;
 

@@ -24,7 +24,7 @@ function initCls() {
     clsCleared = false;
     clsClearA = 0;
     
-    clsKeyGot = false;
+    clsKeyGot = itemHas('key1');
 }
 
 function resetCls() {
@@ -37,7 +37,11 @@ function resetCls() {
     spawnTimers = [0,18,36,54];
     clsDead = false;
     clsDeadA = 0;
-    clsKeyGot = false;
+    if (itemUse('key1')) {
+      clsKeyGot = false;
+    } else {
+      clsKeyGot = itemHas('key1');
+    }
 }
 
 function drawClassroom(){
@@ -216,8 +220,9 @@ function updateCls() {
   }
 
   if (!clsKeyGot && cat.x < 80 && cat.y > clsFloorY - 80) {
-    clsKeyGot = true;
-    clsKey1Got = true;
+    if (itemGain('key1')) {
+      clsKeyGot = true;
+    }
   }
 
   if (clsKeyGot && cat.x > W-25 && !clsCleared) {

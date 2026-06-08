@@ -2,7 +2,7 @@ let scene = 'title';
 let fadingTo = '';
 let fadeAlpha = 0;
 let seqTimer = 0;
-let clsKey1Got = false;
+let clsKey1Used = false;
 
 let sliding = false;
 let slideSpeed = 0;
@@ -11,11 +11,12 @@ let slideAlpha = 0;
 function doRestart() {
   scene = 'title';
   seqTimer = 0;
-  clsKey1Got = false;
+  clsKey1Used = false;
   
   cat = { x:140, y:floorY-32, vx:0, vy:0, onGround:false, dir:1, stepT:0};
   inventory = [];
   corridorEggCollected = false;
+  corridorTextbookCollected = false;
   
   camX = 0; 
   sliding = false;
@@ -28,7 +29,7 @@ function saveGame() {
     seqTimer,
     fadingTo,
     fadeAlpha,
-    clsKey1Got,
+    clsKey1Used,
     clsDead,
     clsDeadA,
     clsCleared,
@@ -50,6 +51,7 @@ function saveGame() {
     cLi,
     cAdv,
     corridorEggCollected,
+    corridorTextbookCollected,
     inventory: [...inventory],
     cTmr,
     churuVis,
@@ -80,7 +82,7 @@ function loadGame() {
   seqTimer = save.seqTimer || 0;
   fadingTo = save.fadingTo || '';
   fadeAlpha = save.fadeAlpha || 0;
-  clsKey1Got = !!save.clsKey1Got;
+  clsKey1Used = save.clsKey1Used !== undefined ? !!save.clsKey1Used : !!save.clsKey1Got;
   clsDead = !!save.clsDead;
   clsDeadA = save.clsDeadA || 0;
   clsCleared = !!save.clsCleared;
@@ -112,6 +114,7 @@ function loadGame() {
   }
 
   corridorEggCollected = !!save.corridorEggCollected;
+  corridorTextbookCollected = !!save.corridorTextbookCollected;
   inventory = Array.isArray(save.inventory) ? [...save.inventory] : [];
 
   cLi = save.cLi || 0;

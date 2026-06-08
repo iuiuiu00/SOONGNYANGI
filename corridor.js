@@ -26,6 +26,11 @@ let nearDoorIdx = -1;
 let corridorEggCollected = false;
 let corridorEggNoticeTimer = 0;
 
+// 책장(전공책 이스터에그) 상태
+let corridorTextbookCollected = false;
+let corridorTextbookPopT = 0;
+let corridorTextbookNoticeTimer = 0;
+
 let enteredX = rooms[0].x;
 
 function drawCorridor() {
@@ -92,7 +97,7 @@ function drawCorridor() {
   });
 
   rooms.forEach((rm,i) => {
-    let dx2 = rm.x - rm.w / 2, dy2 = floorY - rm.h, locked = (rm.type === 'churu' && !clsKey1Got);
+    let dx2 = rm.x - rm.w / 2, dy2 = floorY - rm.h, locked = (rm.type === 'churu' && !clsKey1Used);
 
     fill(2,1,1);
     rect(dx2, dy2, rm.w, rm.h);
@@ -133,7 +138,7 @@ function drawCorridor() {
   });
 
   if (nearDoor) {
-    let rm = rooms[nearDoorIdx], locked = (rm.type === 'churu' && !clsKey1Got);
+    let rm = rooms[nearDoorIdx], locked = (rm.type === 'churu' && !clsKey1Used);
      
     fill(170,160,130,200);
     textSize(9);
@@ -141,6 +146,43 @@ function drawCorridor() {
     textAlign(CENTER,CENTER);
 
     text(locked ? '[잠김]' : '[SHIFT] 입장', rm.x, floorY - rm.h - 16);
+  }
+// ── 책장: 세번째 문 바로 왼쪽
+  const profRm = rooms[2];
+  const shelfW = 36, shelfH = 76;
+  const shelfX = profRm.x - profRm.w / 2 - 44;
+  const shelfY = floorY - shelfH;
+
+  // 책장 그리기
+  fill(90,60,40);
+  rect(shelfX, shelfY, shelfW, shelfH);
+  // 간단한 책 무늬
+  for (let i = 0; i < 5; i++) {
+    fill(80 + i*6, 50 + i*4, 30 + i*3);
+    rect(shelfX + 2, shelfY + 6 + i*12, shelfW - 4, 8);
+  }
+
+  // 플레이어 근처 물음표 표시
+  const shelfCenter = shelfX + shelfW / 2;
+  if (abs(cat.x - shelfCenter) < 42 && cat.onGround) {
+    push();
+    textAlign(CENTER, BOTTOM);
+    textSize(18);
+    fill(255, 220, 80);
+    text('?', cat.x, floorY - 80);
+    pop();
+  }
+
+  // 전공책 팝 애니메이션 (클릭 시)
+  if (corridorTextbookPopT > 0) {
+    const t = corridorTextbookPopT;
+    const bx = shelfX + shelfW/2;
+    const by = shelfY - (30 - t);
+    noStroke();
+    fill(142,68,173);
+    rect(bx - 8, by - 6, 16, 10, 2);
+    fill(120,40,150);
+    rect(bx - 8, by - 6, 4, 10, 1);
   }
 
   fill(52,52,55);
@@ -228,6 +270,9 @@ function updateCorridor() {
     cat.y = cy;
     cat.vy = 0;
   }
+  // 팝 타이머 감소
+  if (corridorTextbookPopT > 0) corridorTextbookPopT = max(corridorTextbookPopT - 1, 0);
+  if (corridorTextbookNoticeTimer > 0) corridorTextbookNoticeTimer = max(corridorTextbookNoticeTimer - 1, 0);
 
   if(abs(cat.vx) > 0.3 && cat.onGround) {
     cat.stepT += 0.28; 
@@ -242,6 +287,14 @@ function updateCorridor() {
       nearDoorIdx = i;
     }
   });
+
+  // 책장 획득 안내 텍스트
+  if (corridorTextbookNoticeTimer > 0) {
+    fill(220, 220, 180, map(corridorTextbookNoticeTimer, 0, 120, 0, 255));
+    textSize(12);
+    textAlign(CENTER, BOTTOM);
+    text('전공책을 획득했다!', cat.x, floorY - 40);
+  }
 }
 
 function updateSlide() {

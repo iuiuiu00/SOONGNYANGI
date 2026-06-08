@@ -1,8 +1,7 @@
 let coopsketBgm;
-
 function preload() {
   soundFormats('mp3');
-  bgm = loadSound('Void Lantern (1).mp3');
+  bgm = loadSound('Void Lantern (1).mp3'); 
   coopsketBgm = loadSound('Ending.mp3');
   schoolImg = loadImage('KakaoTalk_Photo_2026-06-09-00-17-16-1.jpeg');
 }
@@ -29,7 +28,7 @@ function draw() {
   // 음악 재생 (타이틀 넘어가면 시작)
   if (bgm && !bgm.isPlaying() && !csCleared) {
     bgm.loop();
-}
+  }
 
   seqTimer++;
 
@@ -163,7 +162,7 @@ function draw() {
     fill(200,196,188,a);
     textSize(14);
     textAlign(CENTER,CENTER);
-    text('key', W/2, H/2);
+    text('저기 앞에 열쇠다', W/2, H/2);
 
     if (seqTimer >= 300) {
       scene = 'fadein';
@@ -219,7 +218,7 @@ function draw() {
     fill(50,48,46,a);
     textSize(14);
     textAlign(CENTER,CENTER);
-    text('1,4', W/2, H/2);
+    text('여기서 물건을 들고 가볼까?', W/2, H/2);
 
     if (seqTimer >= 300) {
       initCs();
@@ -301,7 +300,7 @@ function draw() {
 
   if (scene === 'ending_photo') {
     image(schoolImg, 0, 0, W, H);
-    
+
     if (seqTimer < 40) {
       fill(0, 0, 0, map(seqTimer, 0, 40, 255, 0));
       rect(0, 0, W, H);

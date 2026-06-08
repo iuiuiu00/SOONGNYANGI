@@ -309,7 +309,7 @@ function handleCsShift() {
   if (csHeld !== null) {
     let item = csItems.find(i => i.id === csHeld);
 
-    if (cat.x>csCX-25 && cat.x<csCX+csCW+25) {
+    if (cat.x>csCX-35 && cat.x<csCX+csCW+35) {
       let slot = csSlots.find(s => s.id === item.id && !s.filled) || csSlots.find(s => !s.filled);
       
       if (slot) {

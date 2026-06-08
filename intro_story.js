@@ -14,7 +14,7 @@ const introLines = [
     {text:'두 스테이지?', sp:'cat'},
     {text:'...', sp:'cat'},
     {text:'알았어, 숭실대학교를 위해서라면 내가 한번 해볼게!', sp:'cat'},
-    {text:'일단 중앙도서관으로 들어가볼까?', sp:'cat'},
+    {text:'일단 신양관으로 들어가볼까?', sp:'cat'},
     
 ];
 
@@ -65,19 +65,6 @@ function drawIntroStory() {
     // 대사창
     const ddx = W * 0.25, ddy = H * 0.38, ddw = W * 0.50, ddh = H * 0.12;
 
-    fill(72, 62, 52);
-    rect(ddx, ddy, ddw, ddh);
-
-    fill(84, 74, 62);
-    rect(ddx + 2, ddy + 2, ddw - 4, ddh * 0.3);
-
-    fill(30, 24, 20);
-    rect(ddx, ddy + ddh, ddw, H * 0.75 - ddy - ddh);
-
-    fill(24, 19, 16);
-    rect(ddx, ddy + ddh, ddw * 0.14, H * 0.75 - ddy - ddh);
-    rect(ddx + ddw - ddw * 0.14, ddy + ddh, ddw * 0.14, H * 0.75 - ddy - ddh);
-
     // 숭냥이 캐릭터 그리기 (배경)
     drawCatBack(80, H - 50);
 
@@ -93,24 +80,31 @@ function drawIntroStory() {
 
     // 화자 이름 및 대사 출력
     let speakerName = '';
+    let speakerColor = color(140, 130, 100);
     switch (introLines[introLi].sp) {
         case 'cat':
             speakerName = '숭냥이';
+            speakerColor = color(140, 130, 100);
             break;
         case 'unknown':
             speakerName = '???';
+            speakerColor = color(180, 180, 180);
             break;
         case 'mingyungjun':
             speakerName = '민경준';
+            speakerColor = color(220, 140, 140);
             break;
         case 'seoyuna':
             speakerName = '서윤아';
+            speakerColor = color(120, 200, 160);
             break;
         case 'kimseojung':
             speakerName = '김서정';
+            speakerColor = color(165, 155, 220);
             break;
         default:
             speakerName = '?';
+            speakerColor = color(180, 180, 180);
     }
 
     fill(10, 10, 12, 220);
@@ -119,7 +113,7 @@ function drawIntroStory() {
     fill(30, 30, 32, 160);
     rect(57, H - 123, W - 114, 2);
 
-    fill(140, 130, 100);
+    fill(speakerColor);
     textSize(10);
     textAlign(LEFT, CENTER);
     text(speakerName, 80, H - 108);
@@ -158,6 +152,7 @@ function advanceIntroStory() {
         // 인트로 완료 → sinyangkwan 씬으로 전환
         scene = 'sinyangkwan';
         initSinyangkwan();
+        
         return;
     }
 }

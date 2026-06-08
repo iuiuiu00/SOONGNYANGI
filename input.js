@@ -49,7 +49,7 @@ function keyPressed() {
   if (scene==='corridor' && keyCode===SHIFT && nearDoor && !menuOpen) {
     let rm = rooms[nearDoorIdx];
     
-    if (rm.type === 'churu' && !clsKey1Got) return;
+    if (rm.type === 'churu' && !clsKey1Used) return;
 
     enteredX = rm.x;
 
@@ -77,7 +77,12 @@ function keyPressed() {
     cTmr = 0;
 
     if (cLi === 1) excA = 0;
-    if (cLi === 2) churuVis = true;
+    if (cLi === 2) {
+      churuVis = true;
+    }
+    if (cLi === 3) {
+      itemGain('churu');
+    }
 
     if (cLi >= cLines.length) {
         fadingTo = 'corridor';
@@ -134,7 +139,7 @@ function keyPressed() {
 function mousePressed() {
   let fs = fullscreen();
 
-  if (!fs) {
+  if (!fs && scene !== 'title') {
     fullscreen(true);
   }
   
@@ -157,8 +162,12 @@ function mousePressed() {
     }
   }
 
+  if (scene !== 'title' && handleInventoryClick(mouseX, mouseY)) {
+    return;
+  }
+
   if (scene === 'title') {
-    handleTitleClick();
+    if (handleTitleClick()) return;
   }
 
    // ── 신양관 씬 ─────────────────────────────────────────────
@@ -166,6 +175,28 @@ function mousePressed() {
     if (snState.laptopOpen) { snHandleLaptopClick(mouseX, mouseY); return; }
     if (snState.doorOpen)   { snHandleDoorClick(mouseX, mouseY);   return; }
     return;
+  }
+
+  // corridor 클릭 핸들링: 책장 클릭을 처리
+  if (scene === 'corridor') {
+    // world 좌표로 변환
+    const worldX = mouseX + (typeof camX !== 'undefined' ? camX : 0);
+    const profRm = rooms[2];
+    const shelfW = 36, shelfH = 76;
+    const shelfX = profRm.x - profRm.w / 2 - 44;
+    const shelfY = floorY - shelfH;
+
+    if (worldX >= shelfX && worldX <= shelfX + shelfW && mouseY >= shelfY && mouseY <= shelfY + shelfH) {
+      // 클릭 시 전공책 팝
+      if (!corridorTextbookCollected) {
+        if (itemGain('textbook')) {
+          corridorTextbookCollected = true;
+          corridorTextbookPopT = 30;
+          corridorTextbookNoticeTimer = 120;
+        }
+      }
+      return;
+    }
   }
 
   // ── 기존 씬들 ─────────────────────────────────────────────

@@ -23,12 +23,12 @@ function drawTitle() {
 
   // ── FLARE 타이틀 ──────────────────────────────────────────
   fill(170);
-noStroke();
-textAlign(LEFT, TOP);
-textSize(120);
-textStyle(BOLD);
-text('FLARE', 80, 60);
-textStyle(NORMAL);
+  noStroke();
+  textAlign(LEFT, TOP);
+  textSize(120);
+  textStyle(BOLD);
+  text('FLARE', 80, 60);
+  textStyle(NORMAL);
 
   // 타이틀 아래 가로선
   stroke(255);
