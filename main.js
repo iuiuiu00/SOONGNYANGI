@@ -159,7 +159,7 @@ function draw() {
     fill(200,196,188,a);
     textSize(14);
     textAlign(CENTER,CENTER);
-    text('저기 앞에 열쇠다', W/2, H/2);
+    text('key', W/2, H/2);
 
     if (seqTimer >= 300) {
       scene = 'fadein';
@@ -215,7 +215,7 @@ function draw() {
     fill(50,48,46,a);
     textSize(14);
     textAlign(CENTER,CENTER);
-    text('orange', W/2, H/2);
+    text('1,4', W/2, H/2);
 
     if (seqTimer >= 300) {
       initCs();
