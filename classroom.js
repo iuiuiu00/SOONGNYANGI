@@ -1,6 +1,7 @@
 let obstacles = []
 let spawnTimers = [0,18,36,54];
 let clsKeyGot = false;
+let clsKeyNoticeTimer = 0;
 let clsDead = false;
 let clsDeadA = 0;
 let clsCleared = false;
@@ -117,7 +118,15 @@ if(!clsKeyGot) {
     
     fill(205,205,200);
     rect(kx-7,ky-5,4,4);
-}
+  }
+
+  if (clsKeyNoticeTimer > 0) {
+    clsKeyNoticeTimer = max(clsKeyNoticeTimer - 1, 0);
+    fill(220, 220, 180, map(clsKeyNoticeTimer, 0, 120, 0, 255));
+    textSize(12);
+    textAlign(CENTER, BOTTOM);
+    text('교실 열쇠 획득!', cat.x, clsFloorY - 40);
+  }
 
 let dx3 = W-140, dy3 = clsFloorY-42;
 
@@ -222,6 +231,7 @@ function updateCls() {
   if (!clsKeyGot && cat.x < 80 && cat.y > clsFloorY - 80) {
     if (itemGain('key1')) {
       clsKeyGot = true;
+      clsKeyNoticeTimer = 120;
     }
   }
 

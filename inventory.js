@@ -198,15 +198,15 @@ function drawInventoryUI() {
       }
     }
   }
-  // 이스터에그 획득 현황 표시 (상단 중앙)
+  // 이스터에그 획득 현황 표시 (왼쪽 하단)
   const eggItems = ['plushie', 'churu', 'textbook'];
   const eggCount = inventory.filter(id => eggItems.includes(id)).length;
   const eggText = `획득한 이스터에그 ${eggCount}/${eggItems.length}`;
   noStroke();
   fill(220);
   textSize(10);
-  textAlign(CENTER, TOP);
-  text(eggText, W / 2, 10);
+  textAlign(LEFT, BOTTOM);
+  text(eggText, 10, H - 10);
   pop();
 }
 
