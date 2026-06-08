@@ -4,18 +4,14 @@ function preload() {
   //schoolImg = loadImage('school.png');
 }
 
+let cnv;
 function setup() {
-  createCanvas(W, H);
+
+  cnv = createCanvas(W, H);
+
   pixelDensity(1);
   noSmooth();
   textFont('monospace');
-  //bgm.setVolume(0.5);
-  //bgm.loop();
-
-  // 초기 fullscreen 활성화 시도
-  if (!fullscreen()) {
-    fullscreen(true);
-  }
 
   MBX = W - 36;
 }
