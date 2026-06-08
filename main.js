@@ -1,6 +1,9 @@
+let coopsketBgm;
+
 function preload() {
   soundFormats('mp3');
-  bgm = loadSound('Void Lantern (1).mp3');   // 여기!
+  bgm = loadSound('Void Lantern (1).mp3');
+  coopsketBgm = loadSound('Ending.mp3');
   schoolImg = loadImage('KakaoTalk_Photo_2026-06-09-00-17-16-1.jpeg');
 }
 
