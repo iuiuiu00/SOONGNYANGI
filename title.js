@@ -145,3 +145,13 @@ function handleTitleClick() {
 
   return false;
 }
+function handleTitleKeyPressed() {
+  // 타이틀에서 키 입력 시 START
+  if (keyCode === ENTER || keyCode === 32) {
+    localStorage.removeItem('flare_save');
+    corridorEggCollected = false;
+    scene = 'intro_story';
+    initIntroStory();
+    seqTimer = 0;
+  }
+}
