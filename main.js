@@ -19,8 +19,13 @@ function setup() {
 function draw() {
   // ── 타이틀 화면
   if (scene === 'title') {
-  drawTitle();
-  return;
+    drawTitle();
+    return;
+  }
+
+  // 음악 재생 (타이틀 넘어가면 시작)
+  if (bgm && !bgm.isPlaying()) {
+    bgm.loop();
   }
 
   seqTimer++;
