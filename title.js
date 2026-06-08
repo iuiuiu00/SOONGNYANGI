@@ -67,6 +67,14 @@ function drawTitle() {
   textAlign(LEFT, CENTER);
   text('이동', 216, ky + 16);
 
+  // E 키
+  ky = H - 148;
+  drawKey('E', 80, ky, 36);
+  fill(200);
+  textSize(13);
+  textAlign(LEFT, CENTER);
+  text('점프', 140, ky + 16);
+
   // Shift 키
   ky = H - 148;
   drawKey('Shift', 80, ky, 52);
