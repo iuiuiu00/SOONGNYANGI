@@ -71,3 +71,5 @@ function drawMenuPopup() {
   textAlign(CENTER,CENTER);
   text('EXIT', W/2, my+126);
 }
+
+function handleMenuClick(mx, my) {}
