@@ -5,7 +5,7 @@ const introLines = [
     {text:'숭냥아!!', sp:'unknown'},
     {text:'???!!!', sp:'cat'},
     {text:'뭐야..?', sp:'cat'},
-    {text:'무너진 숭실대를 되돌려줘!!', sp:'minkyungjun'},
+    {text:'무너진 숭실대를 되돌려줘!!', sp:'mingyungjun'},
     {text:'너만이 할 수 있는 일이야..', sp:'seoyuna'},
     {text:'내가..?', sp:'cat'},
     {text:'...', sp:'cat'},
