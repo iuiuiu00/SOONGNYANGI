@@ -13,6 +13,8 @@ const introLines = [
     {text:'앞으로 나올 두 스테이지 모두 클리어한다면 폐허가 된 숭실대학교가 복구될거야!', sp:'kimseojung'},
     {text:'두 스테이지?', sp:'cat'},
     {text:'...', sp:'cat'},
+    {text:'알았어, 숭실대학교를 위해서라면 내가 한번 해볼게!', sp:'cat'},
+    {text:'일단 중앙도서관으로 들어가볼까?', sp:'cat'},
     
 ];
 
