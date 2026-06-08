@@ -215,7 +215,7 @@ function draw() {
     fill(50,48,46,a);
     textSize(14);
     textAlign(CENTER,CENTER);
-    text('여기서 물건을 들고 가볼까?', W/2, H/2);
+    text('orange', W/2, H/2);
 
     if (seqTimer >= 300) {
       initCs();
