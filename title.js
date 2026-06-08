@@ -22,13 +22,13 @@ function drawTitle() {
   }
 
   // ── FLARE 타이틀 ──────────────────────────────────────────
-  fill(255);
-  noStroke();
-  textAlign(LEFT, TOP);
-  textSize(120);
-  textStyle(BOLD);
-  text('FLARE', 80, 60);
-  textStyle(NORMAL);
+  fill(170);
+noStroke();
+textAlign(LEFT, TOP);
+textSize(120);
+textStyle(BOLD);
+text('FLARE', 80, 60);
+textStyle(NORMAL);
 
   // 타이틀 아래 가로선
   stroke(255);
@@ -90,7 +90,7 @@ function drawTitle() {
   let startHov = mouseX > W - 200 && mouseX < W - 20 &&
                  mouseY > H - 130 && mouseY < H - 90;
   noStroke();
-  fill(startHov ? 255 : 220);
+  fill(startHov ? 0 : 220);
   textSize(36);
   textAlign(RIGHT, CENTER);
   text('START', W - 30, H - 108);
