@@ -27,9 +27,9 @@ function draw() {
   }
 
   // 음악 재생 (타이틀 넘어가면 시작)
-  if (bgm && !bgm.isPlaying()) {
+  if (bgm && !bgm.isPlaying() && scene !== 'coopsket') {
     bgm.loop();
-  }
+}
 
   seqTimer++;
 
