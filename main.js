@@ -1,7 +1,7 @@
 function preload() {
   soundFormats('mp3');
-  //bgm = loadSound('Void_Lantern.mp3');
-  //schoolImg = loadImage('school.png');
+  bgm = loadSound('Void_Lantern.mp3');   
+  schoolImg = loadImage('school.png');   
 }
 
 let cnv;
