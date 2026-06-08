@@ -1,6 +1,10 @@
 let keys = {};
 
 function keyPressed() {
+  if (key === 'f' || key === 'F') {
+    let fs = fullscreen();
+    fullscreen(!fs);
+  }
   if (scene === 'title') {
     handleTitleKeyPressed();
     return false;
@@ -128,6 +132,12 @@ function keyPressed() {
 }
 
 function mousePressed() {
+  let fs = fullscreen();
+
+  if (!fs) {
+    fullscreen(true);
+  }
+  
   if (mouseX>MBX && mouseX<MBX+MBW && mouseY>MBY && mouseY<MBY+MBH && scene !== 'title') {
     menuOpen = !menuOpen;
     return;
@@ -166,7 +176,7 @@ function mousePressed() {
 
 function keyReleased() {
     keys[keyCode] = false;
-    
+  
     if (keyCode === SHIFT) {
         csSP = false;
     }
