@@ -300,53 +300,8 @@ function draw() {
   }
 
   if (scene === 'ending_photo') {
-    // 가을 캠퍼스 픽셀
-    background(115,155,195);
-    noStroke();
-
-    fill(80,120,60);
-    rect(0, H*0.45, W, H*0.55);
+    image(schoolImg, 0, 0, W, H);
     
-    fill(60,90,40);
-    rect(0, H*0.6, W, H*0.4);
-
-    fill(100,90,80);
-    rect(W*0.25, H*0.15, W*0.18, H*0.35);
-    
-    fill(90,80,70);
-    rect(W*0.44, H*0.1, W*0.22, H*0.4);
-
-    fill(140,160,185);
-    
-    for (let i = 0; i < 3; i++)
-      for (let j = 0; j < 4; j++)
-        rect(W*0.27 + i*22, H*0.18 + j*22, 16, 14);
-      
-    for (let i = 0; i < 4; i++)
-      for (let j = 0; j < 5; j++)
-        rect(W*0.46 + i*26, H*0.14 + j*22, 18, 14);
-
-    [
-      [W*0.12, H*0.42],
-      [W*0.72, H*0.38],
-      [W*0.82, H*0.36],
-      [W*0.18, H*0.44]
-    ].forEach(([tx,ty]) => {
-      fill(60,45,20);
-      rect(tx-3, ty, 6, H*0.55 - ty + 20);
-      
-      fill(200,140,30,220);
-      ellipse(tx, ty, 55, 65);
-      
-      fill(180,80,20,160);
-      ellipse(tx+8, ty+10, 40, 50);
-    });
-
-    fill(160,110,20,180);
-    
-    for (let i = 0; i < 30; i++)
-      ellipse(random(W), H*0.78 + random(H*0.2), 8, 5);
-
     if (seqTimer < 40) {
       fill(0, 0, 0, map(seqTimer, 0, 40, 255, 0));
       rect(0, 0, W, H);
