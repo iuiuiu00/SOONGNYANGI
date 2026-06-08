@@ -5,7 +5,7 @@ const credits = [
   {t:'subtitle', x:'Staff Roll'},
   {t:'spacer'},
 
-  {t:'name', x:'민경준'},{t:'category', x:'코딩'},{t:'task', x:'BGM  ·  효과음 구현  ·  카메라 이동'},{t:'category', x:'디자인'},{t:'task', x:'초기 화면  ·  맵 디자인  ·  엔딩 화면'},{t:'category', x:'설계'},{t:'task', x:'신양관  ·  coopsket  ·  중앙도서관 맵 설계'},{t:'spacer'},
+  {t:'name', x:'민경준'},{t:'category', x:'코딩'},{t:'task', x:'BGM  ·  효과음 구현  ·  카메라 이동'},{t:'category', x:'디자인'},{t:'task', x:'초기 화면  ·  맵 디자인  ·  엔딩 화면'},{t:'category', x:'설계'},{t:'task', x:'신양관  ·  coopsket  ·  조만식 맵 설계'},{t:'spacer'},
   {t:'name', x:'서윤아'},{t:'category',x:'코딩'},{t:'task',x:'메인 캐릭터 움직임  ·  중간 저장 기능  ·  물리 엔진'},{t:'category',x:'디자인'},{t:'task',x:'이스터에그 & 아이템 & 장애물  ·  인벤토리'},{t:'category',x:'설계'},{t:'task',x:'물리 수치 설계'},{t:'spacer'},
   {t:'name', x:'김서정'},{t:'category',x:'코딩'},{t:'task',x:'물리 엔진 (충돌 처리)'},{t:'category',x:'디자인'},{t:'task',x:'캐릭터 디자인'},{t:'category',x:'설계'},{t:'task',x:'스토리 기획 (+ 대사)'},{t:'spacer'},{t:'spacer'},
   
