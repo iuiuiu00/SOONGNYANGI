@@ -5,15 +5,15 @@ const introLines = [
     {text:'숭냥아!!', sp:'unknown'},
     {text:'???!!!', sp:'cat'},
     {text:'뭐야..?', sp:'cat'},
-    {text:'무너진 숭실대를 되돌려줘!!', sp:'mingyungjun'},
+    {text:'무너진 숭실대를 되돌려줘!!', sp:'minkyungjun'},
     {text:'너만이 할 수 있는 일이야..', sp:'seoyuna'},
-    {text:'나만이 할 수 있는 일..?', sp:'cat'},
+    {text:'내가..?', sp:'cat'},
     {text:'...', sp:'cat'},
-    {text:'그래, 좋아. 내가 뭘 어떻게 해야하는데?', sp:'cat'},
+    {text:'그래. 내가 뭘 어떻게 해야하는데?', sp:'cat'},
     {text:'앞으로 나올 두 스테이지 모두 클리어한다면 폐허가 된 숭실대학교가 복구될거야!', sp:'kimseojung'},
-    {text:'스테이지?', sp:'cat'},
+    {text:'두 스테이지?', sp:'cat'},
     {text:'...', sp:'cat'},
-    {text:'좋았어, 내가 한 번 해볼게!', sp:'cat'}
+    
 ];
 
 let introLi = 0;
