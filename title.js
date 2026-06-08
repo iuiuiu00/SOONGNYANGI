@@ -73,15 +73,15 @@ function drawTitle() {
   fill(200);
   textSize(13);
   textAlign(LEFT, CENTER);
-  text('점프', 140, ky + 16);
+  text('상호작용', 128, ky + 16);
 
   // Shift 키
-  ky = H - 148;
+  ky = H - 108;
   drawKey('Shift', 80, ky, 52);
   fill(200);
   textSize(13);
   textAlign(LEFT, CENTER);
-  text('상호작용', 140, ky + 16);
+  text('점프', 145, ky + 16);
 
   // ── START / CONTINUE 버튼 ────────────────────────────────
   let hasSave = localStorage.getItem('flare_save') !== null;
