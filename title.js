@@ -57,15 +57,14 @@ function drawTitle() {
     text(label, x + w / 2, y + h / 2);
   }
 
-  // W A D 키
+  // A D 키
   let ky = H - 188;
-  drawKey('W', 80, ky, 36);
-  drawKey('A', 124, ky, 36);
-  drawKey('D', 168, ky, 36);
+  drawKey('A', 80, ky, 36);
+  drawKey('D', 124, ky, 36);
   fill(200);
   textSize(13);
   textAlign(LEFT, CENTER);
-  text('이동', 216, ky + 16);
+  text('이동', 172, ky + 16);
 
   // E 키
   ky = H - 148;
