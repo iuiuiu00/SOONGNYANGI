@@ -76,7 +76,7 @@ function drawTitle() {
 
   // Shift 키
   ky = H - 108;
-  drawKey('Shift', 80, ky, 52);
+  drawKey('SPACE', 80, ky, 52);
   fill(200);
   textSize(13);
   textAlign(LEFT, CENTER);
